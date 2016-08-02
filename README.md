@@ -2,7 +2,7 @@
 
 ## ES6
  - Generator函数
- - Pormise
+ - 如何实现一个Pormise
 
 
 ## React
