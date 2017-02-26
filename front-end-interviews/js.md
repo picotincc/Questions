@@ -119,7 +119,59 @@ call的参数
 
 补充一点，`JSONP`不使用`XMLHttpRequest`对象加载资源，不属于真正意义上的`AJAX`。
 
+## 请解释变量声明提示(hoisting)
 
+变量的声明提到函数的top处，赋值不会
 
+## 请描述事件冒泡机制event bubbling
 
+事件冒泡(event bubbling)，事件最开始时由触发的那个元素身上发生，然后沿着`DOM`树向上传播，直到`document`对象。如果想阻止事件起泡，可以使用`e.stopPropagation()`。
+
+## attribute和property的区别是什么？
+
+- property是DOM中的属性，是JavaScript里的对象；
+- attribute是HTML标签上的特性，它的值只能够是字符串；
+
+## 为什么扩展JavaScript内置对象不是好的做法？
+
+## 请指出document load 和 document DOMContentLoaded 两个事件 的区别
+
+触发的时机不一样，先触发DOMContentLoaded事件，后触发load事件
+
+DOM文档加载的步骤为：
+
+        1.解析HTML结构。
+
+        2.加载外部脚本和样式表文件。
+
+        3.解析并执行脚本代码。
+
+        4.DOM树构建完成。//DOMContentLoaded
+
+        5.加载图片等外部文件。
+
+        6.页面加载完毕。//load
+
+        在第4步，会触发DOMContentLoaded事件；在第6步，触发load事件。
+
+## == 和 ===有什么不同？
+
+弱等于和强等于
+
+```
+1 == "1" //true
+1 === "1" //false
+0 == false //true
+0 === false //false
+```
+
+## 请解释JavaScript的同源策略same-origin policy
+
+同源策略限制了一个**源(origin)**中加载文本或脚本与来自其它**源(origin)**中资源的交互方式。同源指的是协议、域名、端口相同，同源策略是一种安全协议。
+
+## 如何实现如下代码？
+
+```
+[1,2,3,4,5].duplicator(); // [1,2,3,4,5,1,2,3,4,5]
+```
 

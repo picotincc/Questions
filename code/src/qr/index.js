@@ -1,3 +1,3 @@
-(() =>　{
-    console.log("running");
-})();
+import Duplicator from './questions/Duplicator';
+
+Duplicator.run();
