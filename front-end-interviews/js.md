@@ -1,0 +1,125 @@
+# JS相关问题
+
+## 请解释事件代理event delegation
+
+父元素代理处理子元素的事件   事件冒泡机制
+
+## 请解释JavaScript中的this是如何工作的？
+
+每个函数的附加参数this和arguments, 4种调用模式初始化this不一样
+
+- 方法调用模式：当一个函数被保存为一个对象的属性时，称它为一个方法。当一个方法被调用时，this被绑定到改对象，通常是.和["funcName"]，this到对象的绑定发生在调用的时候
+- 函数调用模式：当一个函数并非一个对象的属性时，就是函数调用，this绑定到全局对象
+- 构造器调用模式：一个函数，如果创建的目的是用new来调用，构造器函数大写约定，如果在一个函数前带上new来调用，那么背地里将会创建一个连接到该函数的prototype成员的新对象，this绑定到这个新对象
+- Apply调用模式：apply接受2个参数，第一个是this，第二个是参数数组
+
+## 请解释原型继承prototypal inheritance的原理 
+
+## 你怎么看AMD和CommonJs?
+
+commonjs: nodejs, require, exports,同步加载, 通常应用在node服务器端
+
+- 所有代码都运行在模块作用域，不会污染全局作用域。
+- 模块可以多次加载，但是只会在第一次加载时运行一次，然后运行结果就被缓存了，以后再加载，就直接读取缓存结果。要想让模块再次运行，必须清除缓存。
+- 模块加载的顺序，按照其在代码中出现的顺序。
+
+AMD： 异步加载, define，通常应用在浏览器端, 回调函数
+
+```javascript
+require(['math'], function (math) {
+　　　　math.add(2, 3);
+});
+```
+
+## 请解释为什么接下来这段代码不是IIFE(立即调用的函数表达式)？要做什么改动使它变成IIFE？
+
+```
+function foo(){}();
+(function foo(){})();
+```
+
+## 描述null和undefined的区别
+
+null: 表示一个无的对象，typeof null === object, 转为数值时为0
+
+undefined: 表示一个无的原始值 typeof undefined === undefined 转为数值时为NaN
+
+（1）变量被声明了，但没有赋值时，就等于undefined。
+
+（2) 调用函数时，应该提供的参数没有提供，该参数等于undefined。
+
+（3）对象没有赋值的属性，该属性的值为undefined。
+
+（4）函数没有返回值时，默认返回undefined。
+
+## 什么是闭包，如何使用它，为什么要使用它？
+
+能够读取其他函数内部变量的函数，内部函数读取外部函数的局部变量
+
+- 读取函数内部的变量
+- 让这些变量的值始终保存在内存中
+
+## 请举出一个匿名函数的典型用例？
+
+```
+(function(x, y){
+    alert(x + y);  
+})(2, 3);
+```
+
+创建闭包时使用到
+
+## 你是如何组织自己的代码， 模块模式还是经典继承？
+
+模块模式：import和export
+
+## 请指出 JavaScript 宿主对象 (host objects) 和原生对象 (native objects) 的区别？
+
+宿主对象不是引擎的原生对象，而是由宿主框架通过某种机制注册到JavaScript引擎中的对象。宿主环境，网页的运行环境，操作系统和浏览器
+
+- 宿主对象是指`DOM`和`BOM`。
+- 原生对象是`Object、Function、Array、String、Boolean、Number、Date、RegExp、Error、Math`等对象。
+
+## 请指出以下代码的区别：`function Person(){}`、`var person = Person()`、`var person = new Person()`？
+
+```
+function Person(){}
+```
+
+## .call和.apply的区别是什么？
+
+apply第二个参数是一个数组
+
+call的参数
+
+## 请解释Function.prototype.bind？
+
+创建一个新函数，对它的this赋值
+
+## 什么时候你会使用document.write()
+
+- 直接修改文档流
+- 加载需要配合JS脚本使用的外部CSS文件
+- 在新的窗口写入新的 页面数据时
+
+## Ajax的工作原理
+
+`Ajax`通过`XmlHttpRequest`对象来向服务器发异步请求，从服务器获得数据，然后用`javascript`来操作`DOM`更新页面。
+
+## 请解释JSONP的工作原理，以及它为什么不是真正的Ajax
+
+通过`JSON`与``相结合的办法，可以绕过同源策略从外部服务器直接取得可执行的`JavaScript`函数。
+
+客户端定义一个函数，比如`jsonpCallback`，然后创建``，`src`为`url + ?jsonp=jsonpCallback`这样的形式，之后服务器会生成一个和传递过来`jsonpCallback`一样名字的参数，并把需要传递的数据当做参数传入，比如`jsonpCallback(json)`，然后返回给客户端，此时客户端就执行了这个服务器端返回的`jsonpCallback(json)`回调。
+
+通俗的说，就是客户端定义一个函数然后请求，服务器端返回的`javascript`内容就是调用这个函数，需要的数据都当做参数传入这个函数了。
+
+- 优点 - 兼容性好，简单易用，支持浏览器与服务器双向通信
+- 缺点 - 只支持GET请求；存在脚本注入以及跨站请求伪造等安全问题
+
+补充一点，`JSONP`不使用`XMLHttpRequest`对象加载资源，不属于真正意义上的`AJAX`。
+
+
+
+
+
