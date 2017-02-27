@@ -175,3 +175,81 @@ DOM文档加载的步骤为：
 [1,2,3,4,5].duplicator(); // [1,2,3,4,5,1,2,3,4,5]
 ```
 
+```
+const arr = [ 1, 2, 3, 4, 5 ];
+
+Array.prototype.duplicator = function () {
+    const newArr = this.concat(this);
+    return newArr;
+};
+```
+
+## 什么是三元表达式？
+
+```
+a ? b : c
+```
+
+## 什么是 use strict?好处和坏处
+
+ES5 的第二种运行模式 严格模式
+
+好处：
+
+- 消除Javascript语法的一些不合理、不严谨之处，减少一些怪异行为;
+- 消除代码运行的一些不安全之处，保证代码运行的安全；
+- 提高编译器效率，增加运行速度；
+- 为未来新版本的Javascript做好铺垫。
+
+注：经过测试 IE6,7,8,9 均不支持严格模式。
+
+坏处：
+
+   JS文件的压缩合并导致严格模式不能适用
+
+## 请实现一个遍历至 100 的 for loop 循环， //在能被 3 整除时输出 "fizz"，在能被 5 整除时输出 "buzz"， //在能同时被 3 和 5 整除时输出 "fizzbuzz"。
+
+```
+for (var i = 1; i <= 100; i++) 
+{ 
+	if (i % 3 === 0) 
+	{ 
+		if (i % 5 === 0) 
+		{ 
+			alert('fizzbuzz' + i); 
+			continue; 
+		} 
+		alert('fizz' + i); 
+		continue; 
+	} 
+	else if (i % 5 === 0) 
+	{ 
+		if (i % 3 === 0) 
+		{ 
+			alert('fizzbuzz' + i); 
+			continue; 
+		} 
+		alert('buzz' + i); 
+		continue; 
+	} 
+}
+```
+
+## 为何通常会认为保留网站现有的全局作用域 (global scope) 不去改变它，是较好的选择？
+
+防止污染全局变量，防止覆盖全局函数
+
+## 为何你会使用 `load` 之类的事件 (event)？此事件有缺点吗？你是否知道其他替代品，以及为何使用它们？
+
+window.onload 函数互相覆盖的问题
+
+## 请解释什么是单页应用 (single page app), 以及如何使其对搜索引擎友好 (SEO-friendly)。
+
+- 服务端渲染
+- a链接 h1标签
+- 让搜索引擎抓取ajax内容
+
+##  使用 Promises 而非回调 (callbacks) 优缺点是什么？
+
+- 链式写法，不用写层层嵌套，包含了异常处理
+- 多次触发事件不适用，执行进度不知道，不能取消执行
