@@ -7,7 +7,7 @@
 
 ## React
  - 生命周期方法：7种
----
+
 # CSS相关问题
 
 <!-- toc -->
@@ -50,7 +50,7 @@ z-index 属性设置元素的堆叠顺序。拥有更高堆叠顺序的元素总
 Z-index 仅能在定位元素上奏效（例如 position:absolute;）！
 
 该属性设置一个定位元素沿 z 轴的位置，z 轴定义为垂直延伸到显示区的轴。如果为正数，则离用户更近，为负数则表示离用户更远
----
+
 # 一些学科性基础问题（体系结构，数据结构，算法基础）
 
 <!-- toc -->
@@ -112,7 +112,7 @@ Z-index 仅能在定位元素上奏效（例如 position:absolute;）！
 - 单向：数据流动方向可以跟踪，便于跟踪数据变化。但是写起来比较麻烦，需要手动编写Event。
 
 - 双向：操作简洁（没有CRUD操作），简化测试。但是脏值检查在model体积增大时，效率低下。
----
+
 # HTML相关问题
 
 <!-- toc -->
@@ -233,7 +233,7 @@ css放在head中， 是因为浏览器解析html文档是自上而下的，如�
 ## 你用过哪些不同的HTML模板语言？
 
 - jade
----
+
 # JS相关问题
 
 <!-- toc -->
@@ -439,7 +439,7 @@ DOM文档加载的步骤为：
 ```
 [1,2,3,4,5].duplicator(); // [1,2,3,4,5,1,2,3,4,5]
 ```
----
+
 # 常见问题
 
 <!-- toc -->
@@ -571,7 +571,7 @@ CORS是一个W3C标准，全称是"跨域资源共享"（Cross-origin resource s
 它允许浏览器向跨源服务器，发出[`XMLHttpRequest`](http://www.ruanyifeng.com/blog/2012/09/xmlhttprequest_level_2.html)请求，从而克服了AJAX只能[同源](http://www.ruanyifeng.com/blog/2016/04/same-origin-policy.html)使用的限制。
 
 http://www.ruanyifeng.com/blog/2016/04/cors.html
----
+
 # Web前端面试题
 
 <!-- toc -->
@@ -581,4 +581,4 @@ http://www.ruanyifeng.com/blog/2016/04/cors.html
 <!-- tocstop -->
 
 ##
----
+

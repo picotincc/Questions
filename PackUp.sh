@@ -3,7 +3,7 @@
 echo "start"
 
 cat ./Unsolved.md > README.md
-echo --- >> README.md
+echo "" >> README.md
 
 for file in ./front-end-interviews/*
 do
@@ -11,7 +11,7 @@ do
   then
     markdown-toc -i $file
     cat $file >> README.md
-    echo --- >> README.md
+    echo "" >> README.md
   fi
 done
 
