@@ -14,8 +14,8 @@
 
 ## 开发网页应用时，如何考虑其UI、安全性、高性能、SEO、可维护性以及技术因素？
 
-- UI: 设计
-- 安全性：客户端存储、js压缩丑化
+- UI: 设计，使用成熟的组件库
+- 安全性：客户端存储、js压缩丑化。使用HTTPS，防止HTTPS和HTTP的混合资源。
 - 高性能：缓存、静态资源打包压缩版本控制、减少http请求
 - SEO: 服务端渲染、title、description、meta关键词
 - 可维护性：代码架构、简单的文档和注释、编码风格的统一
@@ -26,7 +26,7 @@ git、atom、webpack、less
 
 ## 你最熟悉的一套版本控制系统
 
-git 
+git
 
 ## 描述当你 制作一个网页的工作流程
 
@@ -104,6 +104,3 @@ CORS是一个W3C标准，全称是"跨域资源共享"（Cross-origin resource s
 它允许浏览器向跨源服务器，发出[`XMLHttpRequest`](http://www.ruanyifeng.com/blog/2012/09/xmlhttprequest_level_2.html)请求，从而克服了AJAX只能[同源](http://www.ruanyifeng.com/blog/2016/04/same-origin-policy.html)使用的限制。
 
 http://www.ruanyifeng.com/blog/2016/04/cors.html
-
-
-
