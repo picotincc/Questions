@@ -11,8 +11,8 @@
 - [使用data-属性的好处？](#%E4%BD%BF%E7%94%A8data-%E5%B1%9E%E6%80%A7%E7%9A%84%E5%A5%BD%E5%A4%84)
 - [如果把 HTML5看作一个开放平台，那它的构建模块有哪些？](#%E5%A6%82%E6%9E%9C%E6%8A%8A-html5%E7%9C%8B%E4%BD%9C%E4%B8%80%E4%B8%AA%E5%BC%80%E6%94%BE%E5%B9%B3%E5%8F%B0%E9%82%A3%E5%AE%83%E7%9A%84%E6%9E%84%E5%BB%BA%E6%A8%A1%E5%9D%97%E6%9C%89%E5%93%AA%E4%BA%9B)
 - [请描述cookie、sessionStorage和localStorage的区别](#%E8%AF%B7%E6%8F%8F%E8%BF%B0cookiesessionstorage%E5%92%8Clocalstorage%E7%9A%84%E5%8C%BA%E5%88%AB)
-- [请解释 的区别](#%E8%AF%B7%E8%A7%A3%E9%87%8A--%E7%9A%84%E5%8C%BA%E5%88%AB)
-- [为什么通常推荐将 CSS 放置在 之间，而将 JS 放置在 之前？你知道相关解释吗？](#%E4%B8%BA%E4%BB%80%E4%B9%88%E9%80%9A%E5%B8%B8%E6%8E%A8%E8%8D%90%E5%B0%86-css--%E6%94%BE%E7%BD%AE%E5%9C%A8--%E4%B9%8B%E9%97%B4%E8%80%8C%E5%B0%86-js--%E6%94%BE%E7%BD%AE%E5%9C%A8--%E4%B9%8B%E5%89%8D%E4%BD%A0%E7%9F%A5%E9%81%93%E7%9B%B8%E5%85%B3%E8%A7%A3%E9%87%8A%E5%90%97)
+- [请解释script,script async,script defer的区别](#%E8%AF%B7%E8%A7%A3%E9%87%8Ascriptscript-asyncscript-defer%E7%9A%84%E5%8C%BA%E5%88%AB)
+- [为什么通常推荐将 CSS `` 放置在 `` 之间，而将 JS `` 放置在 `` 之前？你知道相关解释吗？](#%E4%B8%BA%E4%BB%80%E4%B9%88%E9%80%9A%E5%B8%B8%E6%8E%A8%E8%8D%90%E5%B0%86-css--%E6%94%BE%E7%BD%AE%E5%9C%A8--%E4%B9%8B%E9%97%B4%E8%80%8C%E5%B0%86-js--%E6%94%BE%E7%BD%AE%E5%9C%A8--%E4%B9%8B%E5%89%8D%E4%BD%A0%E7%9F%A5%E9%81%93%E7%9B%B8%E5%85%B3%E8%A7%A3%E9%87%8A%E5%90%97)
 - [什么是渐进式渲染？](#%E4%BB%80%E4%B9%88%E6%98%AF%E6%B8%90%E8%BF%9B%E5%BC%8F%E6%B8%B2%E6%9F%93)
 - [你用过哪些不同的HTML模板语言？](#%E4%BD%A0%E7%94%A8%E8%BF%87%E5%93%AA%E4%BA%9B%E4%B8%8D%E5%90%8C%E7%9A%84html%E6%A8%A1%E6%9D%BF%E8%AF%AD%E8%A8%80)
 
@@ -91,13 +91,13 @@ xhtml系列的文档类型
 - sessionStorage:  仅在当前会话下有效，关闭页面或浏览器之后就被清除，仅在客户端保存
 - localStorage:  永久保存除非被清除
 
-## 请解释<script> <script async> <script defer>的区别
+## 请解释script,script async,script defer的区别
 
 - script:  阻止文档渲染，相关脚本会立即下载并执行
 - script async: html5新特性，兼容性不乐观，不会阻塞页面渲染等待该脚本的下载和执行
 - script defer:  推迟脚本的执行，直到文档解析完成
 
-## 为什么通常推荐将 CSS <link> 放置在 <head></head> 之间，而将 JS <script> 放置在 </body> 之前？你知道相关解释吗？
+## 为什么通常推荐将 CSS `<link>` 放置在 `<head></head>` 之间，而将 JS `<script>` 放置在 `</body>` 之前？你知道相关解释吗？
 
 css放在head中， 是因为浏览器解析html文档是自上而下的，如果放底部的话，页面结构出来了，css还没开始渲染，可能会看到只有结构的页面。CSS 应当写在 head 中，以避免页面元素由于样式确实造成瞬间的白页或者给用户闪烁感。
 
