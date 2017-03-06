@@ -129,3 +129,32 @@ CORS是一个W3C标准，全称是"跨域资源共享"（Cross-origin resource s
 它允许浏览器向跨源服务器，发出[`XMLHttpRequest`](http://www.ruanyifeng.com/blog/2012/09/xmlhttprequest_level_2.html)请求，从而克服了AJAX只能[同源](http://www.ruanyifeng.com/blog/2016/04/same-origin-policy.html)使用的限制。
 
 http://www.ruanyifeng.com/blog/2016/04/cors.html
+
+## 浏览器输入url后会发生什么
+
+- 识别url，协议，域名，端口号，路径地址
+- 查找DNS，浏览器缓存DNS ，操作系统缓存DNS，本地hosts文件，外部DNS查找，直到找到ip地址并缓存起来
+- 主机与服务器建立连接，三次握手，TCP协议
+- 浏览器根据URL内容生成HTTP请求，请求中包含请求文件的位置，请求方式等
+- 服务器返回相应的HTML文件
+- 浏览器渲染HTML，并执行其中的代码，js,css,图片的加载
+- js中的异步请求
+
+## 前端安全
+
+- Cross Site Script XSS 跨站脚本攻击： 攻击者在Web页面中插入恶意脚本，利用script标签
+  - 存储型XSS：注入的脚本永久的存在目标服务器上
+  - 反射型XSS：恶意链接 伪造表单，返回数据
+  - DOM型XSS：本地更新DOM导致了恶意脚本的执行
+  - 防御，从客户端和服务器端双重验证所有的输入数据；对所有的数据进行适当的编码；设置HTTP Header: "X-XSS-Portection:1"
+- SQL注入，通过客户端的输入把SQL命令注入到一个应用的数据库中，从而得以执行恶意SQL语句
+  - Prepared Statements: 参数化的查询语句可以强制应用开发者首先定义所有的sql代码，之后再将每个参数传递给查询语句
+  - Stored Procedures: 使用语言自带的存储程序，而不是自己直接操纵数据库
+  - 验证用户的输入
+  - 对用户提供的所有输入进行编码
+- DDoS 分布式拒绝服务：通过大量恶意流量占用带宽和计算资源以达到瘫痪对方网络的目的
+  - 检测技术：检测网站是否正在遭受DDoS攻击
+  - 清洗技术：清洗掉异常流量
+- CSRF 跨站请求伪造
+  - 检查标准头部，确认请求是否同源
+  - 检查 CSRF Token, cookie中存放一个token来保持和服务端的通信，每一次需要验证的请求时，检测token是否正确
