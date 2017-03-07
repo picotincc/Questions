@@ -87,9 +87,9 @@ xhtml系列的文档类型
 
 ## 请描述cookie、sessionStorage和localStorage的区别
 
-- cookie: 大小4K左右，每次都会随http请求发送至服务器，可设置失效时间
-- sessionStorage:  仅在当前会话下有效，关闭页面或浏览器之后就被清除，仅在客户端保存
-- localStorage:  永久保存除非被清除
+- cookie: 大小4K左右，每次都会随http请求发送至服务器，可设置失效时间，cookie只在设置的cookie过期时间之前一直有效，在所有同源窗口中共享。如果在浏览器端生成Cookie，默认是关闭浏览器后失效
+- sessionStorage:  仅在当前会话下有效，关闭页面或浏览器之后就被清除，仅在客户端保存，不共享。
+- localStorage:  永久保存除非被清除，在所有同源窗口中共享。
 
 ## 请解释script,script async,script defer的区别
 
