@@ -126,7 +126,7 @@
 
 
 
-### :jack_o_lantern:HTTP缓存
+### 🎃HTTP缓存
 
 ##### ETag
 
@@ -158,12 +158,42 @@
 
 
 
-### :jack_o_lantern:性能优化
+### 🎃性能优化
 
 - 制定合理的缓存策略
   - 服务器在返回的头部提供ETag。
   - 组合使用ETag，Cache-Control、唯一网址。
   - 对于更新频繁的资源文件，将其独立开来。保证可以从缓存中读取的资源最大化。
+
+- 防止CSS阻塞渲染
+
+  - 默认情况下CSS是阻塞渲染的，可以通过媒体类型和媒体查询将CSS资源标记为不阻塞的
+
+  - 浏览器会下载所有的CSS资源，无论阻塞还是不阻塞，不阻塞的下载优先级比较低。（所以性能优化在此处仅跟渲染引擎有关）
+
+  - Flash of Unstyled Content (FOUC) : 内容样式短暂失效。指不阻塞CSS的情况下渲染出来的页面。
+
+  - 媒体查询解决阻塞渲染：
+
+    ```css
+    <link href="style.css" rel="stylesheet">
+    <link href="print.css" rel="stylesheet" media="print">
+    <link href="other.css" rel="stylesheet" media="(min-width: 40em)">
+    ```
+
+    第一个阻塞，第二个只在打印内容时阻塞，第三个只在符合条件后才阻塞。
+
+- `script`标签添加`async`属性，将脚本标记为异步，则不会阻塞DOM构建。
+
+- img**不会**阻塞页面的首次渲染。关键渲染路径，通常是指HTML，CSS和JavaScript
+
+- 关键渲染路径的优化：
+
+  - 首选异步加载JavaScript资源
+  - 延迟解析对首次渲染无关紧要的JavaScript脚本
+  - 将CSS置于head标签内，以便浏览器尽早发出css请求。
+  - 避免css import，这回增加关键路径的往返次数：只有在解析到`@import a.css`时才会去请求a.css。
+  - 内敛阻塞渲染的css，这样会减少一次css请求。
 
 
 
