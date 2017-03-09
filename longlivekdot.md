@@ -199,10 +199,43 @@
 
   - 动画效果使用requestAnimationFrame，避免使用setTimeout和setInterval
   - 将长时间运行的JavaScript从主线程移到Web Worker
-  - ​
+
+- HTTP/2
+
+  - 支持header字段压缩
+  - 支持为请求设置优先级
+  - 使用二进制消息分帧。
+  - 三个概念：数据流、消息、帧。
+
+  > - 所有通信都在一个TCP连接上完成，此连接可以承载多个双向数据流。
+  > - 每个数据流都有一个唯一的标识符和可选的优先级信息。
+  > - 每条消息都是一条HTTP请求或HTTP响应，包含一个或多个帧。
+  > - 帧是最小的通信单位，里面装的可能是HTTP标头，也可能是payload。
+  > - 来自不同数据流的帧可以交错发送。
+
+
+
+
+### 🎃计算机网络
+
+##### HTTP协议
+
+- Transfer-Encoding: chunked
+  - 表明request或response的content-length是未知的，消息体由数量为定的块组成。
+  - 以最后一个大小为0的块作为传输结束的标志。
+  - 启用Keep-live模式后，两种判断传输完成的方法：1. 传输长度满足Content-Length（静态页面或图片）2. chunked模式（动态页面）
+- 会话跟踪：session的实现依赖于Cookie，sessionID放到cookie中传给client。
+- 如何防范跨站攻击（CSRF）
+  - 关键操作只接受POST请求
+  - 验证码
+  - 检测Referer
+  - Token：足够随机，一次性，保密性。
+- 如何防范跨站脚本攻击（XSS）：过滤用户输入。
+
 
 
 ### 🍪React-Redux
+
 ##### Provider
 - 在原应用组件上包裹一层，使原来整个应用成为Provider的子组件
 - 接受Redux的store作为props，**通过context**传递给子组件。（Context相当于一个独立的空间，父组件通过getChildContext()向该空间写值。子组件通过this.context.xxx读取）
