@@ -49,6 +49,31 @@
 
 
 
+
+### 🎃响应式设计
+
+- 媒体查询
+- 在网页头部加上viewport标签
+- 不使用绝对宽度，使用栅格布局或rem（移动端）
+- 字体大小使用em或rem
+- 自适应与响应式：
+  - 自适应：自动适应不同尺寸的屏幕，布局一般不变。
+  - 响应式：根据不同尺寸的屏幕，调整布局。
+
+
+
+### 🎃清除浮动
+
+- 添加空的div，css设为`clear: both`
+- 在父元素上使用`overflow: hidden`或`overflow: auto`，可以把父元素撑开。
+- 使用`:after`伪元素，给父元素加个`:after`，然后这个`:after`里面设置`clear: both`
+- 在IE下，为了触发hasLayout，要加上`zoom: 1`。
+
+
+
+
+
+
 ### 🎃Javascript 单线程、异步请求、异步编程
 
 - 单线程：浏览器进程中只有一个js的**执行线程**，同一时刻只有一段代码在执行。因为js是浏览器脚本语言，强调与用户的实时互动，所以只能单线程。（不允许有两个线程同时操作dom）
@@ -111,9 +136,39 @@
 ### 🎃XMLHttpRequest新老版本的对比
 
 - 老版本：只能传递纯文本数据，没有进度信息，同域限制
+
 - 新版本：可通过FormData管理表单数据、传递二进制文件，有进度信息，可跨域。
 
+- 写一个XMLHttpRequest：
 
+  ```javascript
+  if(window.XMLHttpRequest) {
+    var request = new XMLHttpRequest()
+  } else if (window.ActiveXObject("Microsoft.XMLHTTP")) {
+    var request = new ActiveXObject("Microsoft.XMLHTTP")
+  }
+
+  request.open("GET", url, true)
+
+  request.onreadystatechange = function() {
+    if (request.readyState == 4) {
+      if (request.status == 200 || request.status == 302) {
+        console.log(request.responseText)
+      }
+    }
+  }
+
+  request.send()
+
+  // readyState的5种状态：
+  // 0 - UNSENT : open()尚未调用
+  // 1 - OPENED : open()已调用
+  // 2 - HEADERS_RECEIVED : send()已调用，收到response的header
+  // 3 - LOADING : 正在接收response的body
+  // 4 - DONE : 响应完成
+  ```
+
+  ​
 
 
 
@@ -154,6 +209,79 @@
   >
   > 即：组合使用ETag，Cache-Control和唯一网址来实现一举多得：较长的过期时间、控制可以缓存的位置、随需更新。
 
+
+##### Expires
+
+在expires规定的时间内，直接读取缓存。如果与Cache-Control同时设置的话，**优先级低于**Cache-Contro
+
+
+
+##### 强缓存与协商缓存
+
+- 强缓存：如果命中强缓存，直接读取资源，不发送http请求
+- 协商缓存：当强缓存没命中时，会发送请求给服务器，通过http header内的信息验证是否命中协商缓存，如果命中，则从浏览器读取，如果没有命中，则服务器返回资源。
+- 强缓存的实现方法：Expires和Cache-Control的max-age
+- 协商缓存的实现方法：【Last-Modified, If-Modified-Since】和【ETag, If-None-Match】。以ETag为例，response的header里，会塞入ETag，浏览器下次请求的时候，request的header里把上一次response的ETag值塞到If-None-Match字段，然后服务器会进行比对。
+
+
+
+##### CDN缓存
+
+一种服务器端缓存，也叫网关缓存、反向代理缓存。浏览器先向CDN网关发起WEB请求，网关服务器后面对应着一台或多台负载均衡源服务器，会根据它们的负载请求，动态地请求转发到合适的源服务器上。
+
+
+
+##### 基于依赖关系表的静态资源管理系统与模块化框架设计
+
+- 将静态资源按模块进行分类，生成一张map（资源表），map中是资源名称与资源url的映射。
+
+- 实现按需加载资源的接口，一个负责收集静态资源，一个负责加载功能组件，一个负责加载脚本。
+
+- 资源表上新增了一个字段，取名为 `pkg`，就是资源合并生成的新资源。记录打包后的文件所包含的独立资源。
+
+  > 在查表的时候，如果一个静态资源有pkg字段，那么就去加载pkg字段所指向的打包文件，否则加载资源本身。
+
+```json
+{
+    "res" : {
+        "widget/a/a.css" : "/widget/a/a_1688c82.css",
+        "widget/a/a.js"  : "/widget/a/a_ac3123s.js",
+        "widget/b/b.css" : "/widget/b/b_52923ed.css",
+        "widget/b/b.js"  : "/widget/b/b_a5cd123.js",
+        "widget/c/c.css" : "/widget/c/c_03cab13.css",
+        "widget/c/c.js"  : "/widget/c/c_bf0ae3f.js",
+        "jquery.js"      : "/jquery_9151577.js",
+        "bootstrap.css"  : "/bootstrap_f5ba12d.css",
+        "bootstrap.js"   : "/bootstrap_a0b3ef9.js"
+    },
+    "pkg" : {
+        "p0" : {
+            "url" : "/pkg/lib_cef213d.js",
+            "has" : [ "jquery.js", "bootstrap.js" ]
+        },
+        "p1" : {
+            "url" : "/pkg/lib_afec33f.css",
+            "has" : [ "bootstrap.css" ]
+        },
+        "p2" : {
+            "url" : "/pkg/widgets_22feac1.js",
+            "has" : [
+                "widget/a/a.js",
+                "widget/b/b.js",
+                "widget/c/c.js"
+            ]
+        },
+        "p3" : {
+            "url" : "/pkg/widgets_af23ce5.css",
+            "has" : [
+                "widget/a/a.css",
+                "widget/b/b.css",
+                "widget/c/c.css"
+            ]
+        }
+    }
+}
+```
 
 
 
@@ -231,6 +359,38 @@
   - 检测Referer
   - Token：足够随机，一次性，保密性。
 - 如何防范跨站脚本攻击（XSS）：过滤用户输入。
+
+
+
+
+##### TCP协议
+
+- 建立连接时：3次握手
+
+  1. Client发送连接请求报文`(SYN=1, seq=client_isn)`
+
+  2. Server接收连接请求，回复ACK报文，然后为连接分配资源。
+
+     `(SYN=1, seq=server_isn) （ack=client_isn+1）`
+
+  3. Client接收ACK报文，也向Server发送ACK报文，然后为连接分配资源。
+
+     `(SYN=0, seq=client_isn+1) (ack=server_isn+1)`
+
+- 断开连接时：4次握手（下面假设是client发起连接中断）
+
+  1. Client发起中断请求，发送FIN报文。
+  2. Server收到FIN报文后，回复ACK报文。（可能数据还没传完，所以先ACK。Client进入FIN_WAIT状态）
+  3. Server传完数据后，回复FIN报文。
+  4. Client收到Server的FIN报文后，向Server发送ACK报文，然后进入TIME_WAIT状态。经过2MSL时间后，Client进入CLOSED状态。（MSL：最大报文生存时间）
+
+
+
+##### Socket编程
+
+- Socket是一种门面模式，它把复杂的TCP/IP协议隐藏在Socket接口后面，用来和应用层通信。
+- 是网络间不同计算机上的**进程通信**的一种方法。
+
 
 
 
@@ -578,3 +738,192 @@ The most common way this feature is used -- and I would argue, abused -- is to t
 - `Jack(?=Sprat)`：匹配Jack当且仅当Jack后面跟着Sprat。（正向肯定查找）
 
 - `[]`：字符集和，匹配方括号中的任意字符，包括转义序列，即`.`和`*`等在方括号中不用转义。
+
+
+
+
+
+### 🔨var,let,const的一点小细节
+
+- `for…of`循环中，`const`和`let`每次循环都会生成一个新的绑定，`var`只生成一个。
+
+- 普通for循环中，`const`不能用来申明循环的下标。
+
+- 暂时性死区：只要块级作用域内存在`let`命令，它所声明的变量就“绑定”（binding）这个区域，不再受外部的影响。
+
+  ```javascript
+  var tmp = 123;
+
+  if (true) {
+    tmp = 'abc'; // ReferenceError
+    let tmp;
+  }
+
+  // 存在全局变量tmp，但是块级作用域内let又声明了一个局部变量tmp，导致后者绑定这个块级作用域，所以在let声明变量前，对tmp赋值会报错。
+  ```
+
+
+
+
+
+### 🔨debounce、throttle、requestAnimationFrame
+
+- debounce：把触发非常频繁的事件（比如按键）合并成一次执行。
+
+  - 典型例子：autocomplete，等用户停止输入之后再发送请求。
+
+  - 实现：
+
+    ```javascript
+    function debounce(fn, delta) {
+      var timeoutID = null;
+     
+      return function() {
+        clearTimeout(timeoutID);
+
+        // 保存函数调用时的上下文和参数
+        var context = this；
+        var args = arguments;
+        
+        timeoutID = setTimeout(function() {
+          fn.apply(context, args);
+        }, delta);
+      };
+    }
+    ```
+
+    ​
+
+- throttle：保证每 X 毫秒恒定的执行次数。
+
+  - 典型列子：页面底部的载入更多。
+
+  - 与debounce的区别：_.throttle(func,300) 300ms内，func至少执行一次。
+
+  - 实现：
+
+    ```javascript
+    function throttle(fn,threshhold){
+      var last  		//记录上次运行时间
+      var timeoutID  	//定时器
+      
+      threshhold || (threshhold = 250)
+      
+      return function(){
+        
+        var context = this
+        var args = arguments
+        
+        var now = Date.now()
+        
+        if(last && now < last + threshhold){
+          clearTimeout(timeoutId)
+          
+          timeoutId = setTimeout(function(){
+            last = now
+            fn.apply(context,args)
+          },threshhold)     
+        }else{
+          last = now
+          fn.apply(context,args)
+        }
+      }
+    }
+    ```
+
+    ​
+
+- requestAnimationFrame：可替代 throttle ，函数需要重新计算和渲染屏幕上的元素时，想保证动画或变化的平滑性，可以用它。但需要手动控制动画的开始和结束。
+
+
+
+### 🔨解决setTimeout的this问题
+
+```javascript
+myArray = ['zero', 'one', 'two'];
+myArray.myMethod = function (sProperty) {
+    alert(arguments.length > 0 ? this[sProperty] : this);
+};
+
+myArray.myMethod(); // prints "zero,one,two"
+myArray.myMethod(1); // prints "one"
+
+
+setTimeout(myArray.myMethod, 1000); // prints "[object Window]" after 1 second
+setTimeout(myArray.myMethod, 1500, '1'); // prints "undefined" after 1.5 seconds
+```
+
+在不使用bind的情况下，setTimeout里面的这个function，this默认指向window。
+
+解决办法：
+
+```javascript
+setTimeout(function(){myArray.myMethod()}, 2000); // prints "zero,one,two" after 2 seconds
+setTimeout(function(){myArray.myMethod('1')}, 2500); // prints "one" after 2.5 seconds
+
+// or use arrow function
+
+setTimeout(() => {myArray.myMethod()}, 2000); // prints "zero,one,two" after 2 seconds
+setTimeout(() => {myArray.myMethod('1')}, 2500); // prints "one" after 2.5 seconds
+
+// 或者使用Proxy重写window的setTimeout函数
+var __nativeST__ = window.setTimeout, 
+ 
+window.setTimeout = function (vCallback, nDelay /*, argumentToPass1, argumentToPass2, etc. */) {
+  var oThis = this, 
+      aArgs = Array.prototype.slice.call(arguments, 2);
+  return __nativeST__(vCallback instanceof Function ? function () {
+    vCallback.apply(oThis, aArgs);
+  } : vCallback, nDelay);
+};
+```
+
+#### 其他的this问题：
+
+- 非strict模式下，this只跟**调用者**有关。是谁在调用，就指向谁。
+
+- 箭头函数中，this只跟**定义时**的上下文有关，跟被谁调用无关。
+
+  - 特殊情况：
+
+    ```javascript
+    var obj = {
+      bar: function(){
+        var x = () => this
+        return x
+      }
+    }
+
+    var fn = obj.bar()
+
+    console.log(fn() === obj) // true
+
+    var fn2 = obj.bar
+
+    console.log(fu2()() === window) // true
+    ```
+
+- function作为一个object的方法（属性）时，this**指向这个object**。且如果这个function被多个object引用时，this指向**最后一个**。
+
+- 原型链上的this：
+
+  ```javascript
+  var o = {f: function() { return this.a + this.b; }};
+  var p = Object.create(o);
+  p.a = 1;
+  p.b = 4;
+
+  console.log(p.f()); 
+  // 5
+  // 虽然f方法在原型o上，但this依旧指向p
+  ```
+
+  ​
+
+
+
+JavaScript模块引用
+
+组件化，模块化
+
+canvas
