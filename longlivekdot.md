@@ -24,7 +24,7 @@
 
 - HTML/**SVG**/XHTML，解析这三种文件会产生一个DOM树
 
-- js的下载和执行会阻塞Dom树的构建，脚本标记为**defer**之后可以滞后执行。
+- js的下载和执行会阻塞Dom树的构建，脚本标记为**async**或**defer**之后可以滞后执行。
 
 - 样式表必须**在脚本之前**加载和解析，因为脚本可能会在解析的过程中请求样式信息。
 
@@ -311,7 +311,7 @@
 
     第一个阻塞，第二个只在打印内容时阻塞，第三个只在符合条件后才阻塞。
 
-- `script`标签添加`async`属性，将脚本标记为异步，则不会阻塞DOM构建。
+- `script`标签添加`async`属性（下载完就执行）或`defer`属性（渲染完再执行），将脚本标记为异步，则不会阻塞DOM构建。
 
 - img**不会**阻塞页面的首次渲染。关键渲染路径，通常是指HTML，CSS和JavaScript
 
@@ -343,6 +343,11 @@
 
 
 
+
+### 🎃按需加载
+
+- `import()`：一种类似`require`的运行时加载。
+- ​
 
 ### 🎃计算机网络
 
@@ -480,13 +485,347 @@ export default function bindActionCreators(actionCreators, dispatch) {
 
 
 
+### 6️⃣Class
+
+```javascript
+class Point {
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
+  }
+
+  toString() {
+    return '(' + this.x + ', ' + this.y + ')';
+  }
+}
+```
+
+- 类的所有方法都定义在类的prototype上
+
+  ```javascript
+  Point.toString === Point.prototype.toString
+
+  Point === Point.prototype.constructor
+  // prototype对象的constructor属性，直接指向类本身
+  ```
+
+- 类的属性名，可以采用表达式
+
+  ```javascript
+  let methodName = "getArea";
+  class Square{
+    constructor(length) {
+      // ...
+    }
+
+    [methodName]() {
+      // ...
+    }
+  }
+  ```
+
+- 可以通过类的实例的`__proto__`属性，为Class添加方法
+
+  ```javascript
+  var p1 = new Point(2,3);
+  var p2 = new Point(3,2);
+
+  p1.__proto__.printName = function () { return 'Oops' };
+
+  p1.printName() // "Oops"
+  p2.printName() // "Oops"
+
+  var p3 = new Point(4,2);
+  p3.printName() // "Oops"
+  ```
+
+- 使用Symbol可以实现类的**私有方法**
+
+  ```javascript
+  const bar = Symbol('bar');
+  const snaf = Symbol('snaf');
+
+  export default class myClass{
+
+    // 公有方法
+    foo(baz) {
+      this[bar](baz);
+    }
+
+    // 私有方法
+    [bar](baz) {
+      return this[snaf] = baz;
+    }
+
+    // ...
+  };
+
+  // export暴露的只有myClass，Symbol是取不到的。
+  ```
+
+- 类中的this问题：
+
+  ```javascript
+  class Logger {
+    printName(name = 'there') {
+      this.print(`Hello ${name}`);
+    }
+
+    print(text) {
+      console.log(text);
+    }
+  }
+
+  const logger = new Logger();
+  const { printName } = logger;
+  printName(); // 会报错，因为单独使用时，this指向运行时所在的环境。
+
+  //解决办法：
+  // 1. 在constructor里面bind
+  class Logger {
+    constructor() {
+      this.printName = this.printName.bind(this);
+    }
+
+    // ...
+  }
+
+  // 2. 箭头函数
+  class Logger {
+    constructor() {
+      this.printName = (name = 'there') => {
+        this.print(`Hello ${name}`)
+      }
+    }
+  }
+
+  // 3. Proxy
+  // 申明一个修改原Class的get行为的Proxy，在这个Proxy种，对target进行this的绑定。
+  ```
+
+- Class的继承：`super`用来调用父类的方法。子类必须在constructor内部调用`super()`。因为子类没有this对象，而是继承父类的this对象。如果不调用，子类得不到this对象。
+
+- Class的static方法，不会被实例继承，只能通过调用类来使用。
+
+  ```javascript
+  class Foo {
+    static classMethod() {
+      return 'hello';
+    }
+  }
+
+  Foo.classMethod() // 'hello'
+
+  var foo = new Foo();
+  foo.classMethod()
+  // TypeError: foo.classMethod is not a function
+  ```
+
+- ES6中，Class没有静态属性这种说法。
+
+
+
+
+
+### 6️⃣Module
+
+- CommonJS：运行时加载。
+
+  ```javascript
+  // CommonJS模块
+  let { stat, exists, readFile } = require('fs');
+
+  // 等同于
+  let _fs = require('fs');
+  let stat = _fs.stat;
+  let exists = _fs.exists;
+  let readfile = _fs.readfile;
+
+  // 会加载fs的所有方法。无法做静态优化。
+  ```
+
+- `import`：
+
+  - 编译时加载。在编译阶段执行import语句。
+  - 按需加载。只import大括号内需要的东西。
+  - 具有**提升效果**。
+  - 是**Singleton**模式。对同一个模块多次import，只会执行一次。
+
+- `export`：输出一个function或变量时，要加`{}`
+
+  ```javascript
+  export function f() {};
+  // or
+  function f() {}
+  export {f}
+
+  //如果直接export f 会报错。
+  ```
+
+- ES6的模块加载与CommonJS的区别：
+
+  - CommonJS输出的是值的**拷贝**，模块内部的变化不会影响这个值。且CommonJS会对输出的值做**缓存**。
+
+  - ES6输出的是值的**引用**，相当于UNIX的**符号链接**。不做缓存，是动态引用。
+
+  - Node加载ES6模块的路径问题：
+
+    ```javascript
+    import './foo';
+    // 依次寻找
+    //   ./foo.js
+    //   ./foo/package.json
+    //   ./foo/index.js
+
+    import 'baz';
+    // 依次寻找
+    //   ./node_modules/baz.js
+    //   ./node_modules/baz/package.json
+    //   ./node_modules/baz/index.js
+    // 寻找上一级目录
+    //   ../node_modules/baz.js
+    //   ../node_modules/baz/package.json
+    //   ../node_modules/baz/index.js
+    // 再上一级目录
+    ```
+
+- CommonJS模块加载原理：
+
+  - CommonJS中，一个模块就是一个脚本文件。
+
+  - `require`命令第一次加载该脚本，会在内存中生成一个对象：
+
+    ```json
+    {
+      id: '...',
+      exports: { ... },   // 模块输出的各个接口
+      loaded: true,       // 脚本是否执行完毕
+      ...
+    }
+    ```
+
+  - 后面无论加载多少次，都是从系统缓存里读取。
+
 ### 6️⃣Generator
 
 - 状态机的概念，内部封装多个状态。
 - 执行Generator函数会返回一个遍历器对象，遍历器可以依次遍历Generator函数内部的各个状态。
 - Generator可以没有yield语句，这时就变成了一个单纯的暂缓执行函数。
 - Generator作为遍历器生成函数，可以直接复制给`[Symbol.iterator]`
-- ​
+
+
+##### 使用Generator实现协程
+
+- 异步任务的封装
+
+  ```javascript
+  var fetch = require('node-fetch');
+
+  function* gen(){
+    var url = 'https://api.github.com/users/github';
+    var result = yield fetch(url);
+    console.log(result.bio);
+  }
+
+  // 执行：
+
+  var g = gen();
+  var result = g.next();
+
+  result.value.then(function(data){
+    return data.json();
+  }).then(function(data){
+    g.next(data);
+  });
+  ```
+
+  上面代码中，首先执行 Generator 函数，**获取遍历器对象**，然后使用`next`方法（第二行），执行异步任务的**第一阶段**。由于`Fetch`模块返回的是一个**Promise对象**，因此要用`then`方法调用下一个`next`方法。
+
+
+
+### 6️⃣Thunk函数
+
+- 一种“传名调用”的实现策略。
+
+  - 传名调用：参数在被使用的时候才会计算。
+  - 传值调用：参数传入的时候，就会被计算。
+
+  ```javascript
+  // 正常版本的readFile（多参数版本）
+  fs.readFile(fileName, callback);
+
+  // Thunk版本的readFile（单参数版本）
+  var Thunk = function (fileName) {
+    return function (callback) {
+      return fs.readFile(fileName, callback);
+    };
+  };
+
+  var readFileThunk = Thunk(fileName);
+  readFileThunk(callback);
+  ```
+
+  `fs`模块的`readFile`方法是一个多参数函数，两个参数分别为文件名和回调函数。经过转换器处理，它变成了一个**单参数函数**，只接受回调函数作为参数。这个单参数版本，就叫做**Thunk函数**。
+
+
+
+### 6️⃣async函数
+
+- 用async替代*，用await替代yield，其他和Generator一样
+
+- 是Generator的语法糖，不用手动执行next()，和普通函数一样执行。
+
+- 返回值是一个promise。
+
+  ```javascript
+  async function f() {
+    return 'hello world';
+  }
+
+  f().then(v => console.log(v))
+  // "hello world"
+
+
+  // 例子2：
+  async function getTitle(url) {
+    let response = await fetch(url);
+    let html = await response.text();
+    return html.match(/<title>([\s\S]+)<\/title>/i)[1];
+  }
+  getTitle('https://tc39.github.io/ecma262/').then(console.log)
+  // "ECMAScript 2017 Language Specification"
+  ```
+
+- await命令后面是一个Promise对象。如果不是，会被转成一个立即resolve的Promise对象。
+
+- async函数的实现原理：Generator函数和自动执行器。
+
+  ```javascript
+  function spawn(genF) {
+    return new Promise(function(resolve, reject) {
+      var gen = genF();
+      function step(nextF) {
+        try {
+          var next = nextF();
+        } catch(e) {
+          return reject(e);
+        }
+        if(next.done) {
+          return resolve(next.value);
+        }
+        Promise.resolve(next.value).then(function(v) {
+          step(function() { return gen.next(v); });
+        }, function(e) {
+          step(function() { return gen.throw(e); });
+        });
+      }
+      step(function() { return gen.next(undefined); });
+    });
+  }
+  ```
+
+  ​
+
 
 
 
@@ -624,7 +963,7 @@ Proxy代理的情况下，this指向Proxy代理。
 
 `__proto__`: 一种属性，每个对象都有这个属性，指向该对象的原型对象
 
-`prototype`: 只有function才有。用来存储要被继承的属性和方法。
+`prototype`: 只有function才有。用来存储要被继承的属性和方法。是function的一个属性，里面包含一个对象。`DOG.prototype = {species: '犬科'}`
 
 `Object.prototype.__proto__ === null`: Object.prototype是原型链的顶端
 
@@ -927,3 +1266,7 @@ JavaScript模块引用
 组件化，模块化
 
 canvas
+
+按需加载
+
+深拷贝
