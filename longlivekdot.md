@@ -685,6 +685,7 @@ class Point {
   - 按需加载。只import大括号内需要的东西。
   - 具有**提升效果**。
   - 是**Singleton**模式。对同一个模块多次import，只会执行一次。
+  - 整体加载：`import * as circle from './circle'` 
 
 - `export`：输出一个function或变量时，要加`{}`
 
@@ -696,6 +697,9 @@ class Point {
 
   //如果直接export f 会报错。
   ```
+
+  - 本质上，`export default`就是输出一个叫做`default`的变量或方法，然后系统允许你为它取任意名字。
+  - 模块的继承：如果要继承`circle模块`，通过`export * from 'circle'`，再export自己的东西。
 
 - ES6的模块加载与CommonJS的区别：
 
@@ -740,6 +744,22 @@ class Point {
     ```
 
   - 后面无论加载多少次，都是从系统缓存里读取。
+
+- 采用`require`命令加载 ES6 模块时，ES6 模块的所有输出接口，会成为输入对象的属性。
+
+  ```javascript
+  // es.js
+  let foo = {bar:'my-default'};
+  export default foo;
+  foo = null;
+
+  // cjs.js
+  const es_namespace = require('./es');
+  console.log(es_namespace.default);
+  // {bar:'my-default'}
+  ```
+
+  ​
 
 ### 6️⃣Generator
 
@@ -819,6 +839,7 @@ class Point {
 
   f().then(v => console.log(v))
   // "hello world"
+  ```
 
 
   // 例子2：
@@ -1080,6 +1101,39 @@ The most common way this feature is used -- and I would argue, abused -- is to t
 **NaN** value is the only one that would make x !== x be true.
 
 
+
+
+
+### 🔨单例模式
+
+- 闭包
+
+  ```javascript
+  const getInstance = function(){
+    let instance;
+    return function(){
+      if(!instance){
+        instance = new Instance()
+      }
+      return instance;
+    }
+  }
+  ```
+
+- 构造函数的静态属性缓存实例
+
+  ```javascript
+  function Person(){
+    if(typeof Person.instance === 'object') {
+      return Person.instance
+    }
+    this.createTime = new Date();
+    Person.instance = this;
+    return this;
+  }
+  ```
+
+  ​
 
 
 
