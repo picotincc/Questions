@@ -1,5 +1,19 @@
 [TOC]
 
+### 🎃 函数式编程
+
+- 只是用表达式，不使用语句。表达式有返回值，语句没有返回值。
+- 函数式编程的开发动机：处理运算，不考虑系统的读写（I/O）。语句属于对系统的读写操作。
+- 没有副作用：函数要保持独立，所有功能就是返回一个新的值，不得修改外部变量的值。
+- 不修改状态，使用参数保存状态。
+- 引用透明：参数相同则运行结果相同。
+- 优势：
+  - 代码简洁，易懂
+  - 便于管理
+  - 易于“并发编程”，由于不修改变量，所以不存在死锁。可以放心的并发处理。
+
+
+
 ### 🎃浏览器输入url之后发生了什么
 
 - 输入：优先考虑搜索历史和书签等内容给出建议，Chrome浏览器甚至会提前建立TCP链接
@@ -125,6 +139,19 @@
 - 事件捕获：顶层对象发出一个事件流，随着DOM树的节点向目标元素流去，过程中事件的相应监听函数不会被触发，直到捕获到目标之后，才会触发对应的监听函数。
 
 
+```javascript
+// 获取父节点，并为它添加一个click事件
+document.getElementById("parent-list").addEventListener("click",function(e) {
+  // 检查事件源e.targe是否为Li
+  if(e.target && e.target.nodeName.toUpperCase == "LI") {
+    // 真正的处理过程在这里
+    console.log("List item ",e.target.id.replace("post-")," was clicked!");
+  }
+});
+```
+
+
+
 
 ### 🎃HTTP缓存
 
@@ -231,6 +258,9 @@
   - 检测Referer
   - Token：足够随机，一次性，保密性。
 - 如何防范跨站脚本攻击（XSS）：过滤用户输入。
+
+
+
 
 
 
@@ -578,3 +608,76 @@ The most common way this feature is used -- and I would argue, abused -- is to t
 - `Jack(?=Sprat)`：匹配Jack当且仅当Jack后面跟着Sprat。（正向肯定查找）
 
 - `[]`：字符集和，匹配方括号中的任意字符，包括转义序列，即`.`和`*`等在方括号中不用转义。
+
+
+
+
+
+### 🔨 this关键字
+
+- 原则：this指向调用者的那个对象。
+
+- 通过bind，apply，call来绑定this。
+
+- 闭包的内嵌函数中，要const that = this
+
+- 当把含有this的方法赋值给**一个变量**时，要通过bind维持this的值
+
+  ```javascript
+  var data = [
+    {name: "Samantha", age: 12},
+    {name: "Alexis", age: 14}
+  ];
+
+  var user = {
+    data: [
+    	{name: "T. Woods", age: 37},
+      {name: "P. Mickelson", age: 43}
+    ],
+    showData: function(event) {
+    	var randomNum = ((Math.random() * 2 | 0) + 1) - 1; // 0 和 1 之间的随机数
+      console.log(this.data[randomNum].name + " " + this.data[randomNum].age);
+    }
+  }
+
+  var showUserData = user.showData.bind(user)
+
+  showUserData()
+  // bind之后，输出的就是user的data而不是全局的data
+  ```
+
+
+
+
+
+### 🔨在string上使用Array.map
+
+```javascript
+var map = Array.prototype.map;
+var a = map.call('Hello World', function(x) { 
+  return x.charCodeAt(0); 
+});
+```
+
+
+
+
+
+### 🔨querySelectorAll与getElementBy
+
+- querySelectorAll，参数是**css selector**，多个selector之间用**逗号**隔开。返回的是non-live NodeList，是元素快照，不会受DOM的变化而变化。
+
+- querySelectorAll无法查询伪元素
+
+- getElementBy返回的是live NodeList
+
+  ```javascript
+  var ul = document.getElementsByTagName('ul')[0], 
+      lis = ul.getElementsByTagName("li"); 
+  for(var i = 0; i < lis.length ; i++){
+      ul.appendChild(document.createElement("li")); 
+  }
+  // 会造成无限循环，每次调用live NodeList都会重新去查询一遍DOM
+  ```
+
+  ​
