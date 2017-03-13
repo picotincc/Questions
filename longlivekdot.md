@@ -1,6 +1,6 @@
 [TOC]
 
-### 🎃 函数式编程
+### 🎃函数式编程
 
 - 只是用表达式，不使用语句。表达式有返回值，语句没有返回值。
 - 函数式编程的开发动机：处理运算，不考虑系统的读写（I/O）。语句属于对系统的读写操作。
@@ -38,7 +38,7 @@
 
 - HTML/**SVG**/XHTML，解析这三种文件会产生一个DOM树
 
-- js的下载和执行会阻塞Dom树的构建，脚本标记为**defer**之后可以滞后执行。
+- js的下载和执行会阻塞Dom树的构建，脚本标记为**async**或**defer**之后可以滞后执行。
 
 - 样式表必须**在脚本之前**加载和解析，因为脚本可能会在解析的过程中请求样式信息。
 
@@ -58,6 +58,31 @@
 - DOM存储：sessionStorage、localStorage
 - `<audio>`和`<video>`标签支持新的多媒体内容的操作。
 - Web Worker：在后台线程运行脚本。线程可以执行任务而不干扰用户界面。生成操作系统级别的线程，且无法访问非线程安全的组件和DOM。
+
+
+
+
+
+
+### 🎃响应式设计
+
+- 媒体查询
+- 在网页头部加上viewport标签
+- 不使用绝对宽度，使用栅格布局或rem（移动端）
+- 字体大小使用em或rem
+- 自适应与响应式：
+  - 自适应：自动适应不同尺寸的屏幕，布局一般不变。
+  - 响应式：根据不同尺寸的屏幕，调整布局。
+
+
+
+### 🎃清除浮动
+
+- 添加空的div，css设为`clear: both`
+- 在父元素上使用`overflow: hidden`或`overflow: auto`，可以把父元素撑开。
+- 使用`:after`伪元素，给父元素加个`:after`，然后这个`:after`里面设置`clear: both`
+- 在IE下，为了触发hasLayout，要加上`zoom: 1`。
+
 
 
 
@@ -125,9 +150,39 @@
 ### 🎃XMLHttpRequest新老版本的对比
 
 - 老版本：只能传递纯文本数据，没有进度信息，同域限制
+
 - 新版本：可通过FormData管理表单数据、传递二进制文件，有进度信息，可跨域。
 
+- 写一个XMLHttpRequest：
 
+  ```javascript
+  if(window.XMLHttpRequest) {
+    var request = new XMLHttpRequest()
+  } else if (window.ActiveXObject("Microsoft.XMLHTTP")) {
+    var request = new ActiveXObject("Microsoft.XMLHTTP")
+  }
+
+  request.open("GET", url, true)
+
+  request.onreadystatechange = function() {
+    if (request.readyState == 4) {
+      if (request.status == 200 || request.status == 302) {
+        console.log(request.responseText)
+      }
+    }
+  }
+
+  request.send()
+
+  // readyState的5种状态：
+  // 0 - UNSENT : open()尚未调用
+  // 1 - OPENED : open()已调用
+  // 2 - HEADERS_RECEIVED : send()已调用，收到response的header
+  // 3 - LOADING : 正在接收response的body
+  // 4 - DONE : 响应完成
+  ```
+
+  ​
 
 
 
@@ -182,6 +237,79 @@ document.getElementById("parent-list").addEventListener("click",function(e) {
   > 即：组合使用ETag，Cache-Control和唯一网址来实现一举多得：较长的过期时间、控制可以缓存的位置、随需更新。
 
 
+##### Expires
+
+在expires规定的时间内，直接读取缓存。如果与Cache-Control同时设置的话，**优先级低于** Cache-Control
+
+
+
+##### 强缓存与协商缓存
+
+- 强缓存：如果命中强缓存，直接读取资源，不发送http请求
+- 协商缓存：当强缓存没命中时，会发送请求给服务器，通过http header内的信息验证是否命中协商缓存，如果命中，则从浏览器读取，如果没有命中，则服务器返回资源。
+- 强缓存的实现方法：Expires和Cache-Control的max-age
+- 协商缓存的实现方法：【Last-Modified, If-Modified-Since】和【ETag, If-None-Match】。以ETag为例，response的header里，会塞入ETag，浏览器下次请求的时候，request的header里把上一次response的ETag值塞到If-None-Match字段，然后服务器会进行比对。
+
+
+
+##### CDN缓存
+
+一种服务器端缓存，也叫网关缓存、反向代理缓存。浏览器先向CDN网关发起WEB请求，网关服务器后面对应着一台或多台负载均衡源服务器，会根据它们的负载请求，动态地请求转发到合适的源服务器上。
+
+
+
+##### 基于依赖关系表的静态资源管理系统与模块化框架设计
+
+- 将静态资源按模块进行分类，生成一张map（资源表），map中是资源名称与资源url的映射。
+
+- 实现按需加载资源的接口，一个负责收集静态资源，一个负责加载功能组件，一个负责加载脚本。
+
+- 资源表上新增了一个字段，取名为 `pkg`，就是资源合并生成的新资源。记录打包后的文件所包含的独立资源。
+
+  > 在查表的时候，如果一个静态资源有pkg字段，那么就去加载pkg字段所指向的打包文件，否则加载资源本身。
+
+```json
+{
+    "res" : {
+        "widget/a/a.css" : "/widget/a/a_1688c82.css",
+        "widget/a/a.js"  : "/widget/a/a_ac3123s.js",
+        "widget/b/b.css" : "/widget/b/b_52923ed.css",
+        "widget/b/b.js"  : "/widget/b/b_a5cd123.js",
+        "widget/c/c.css" : "/widget/c/c_03cab13.css",
+        "widget/c/c.js"  : "/widget/c/c_bf0ae3f.js",
+        "jquery.js"      : "/jquery_9151577.js",
+        "bootstrap.css"  : "/bootstrap_f5ba12d.css",
+        "bootstrap.js"   : "/bootstrap_a0b3ef9.js"
+    },
+    "pkg" : {
+        "p0" : {
+            "url" : "/pkg/lib_cef213d.js",
+            "has" : [ "jquery.js", "bootstrap.js" ]
+        },
+        "p1" : {
+            "url" : "/pkg/lib_afec33f.css",
+            "has" : [ "bootstrap.css" ]
+        },
+        "p2" : {
+            "url" : "/pkg/widgets_22feac1.js",
+            "has" : [
+                "widget/a/a.js",
+                "widget/b/b.js",
+                "widget/c/c.js"
+            ]
+        },
+        "p3" : {
+            "url" : "/pkg/widgets_af23ce5.css",
+            "has" : [
+                "widget/a/a.css",
+                "widget/b/b.css",
+                "widget/c/c.css"
+            ]
+        }
+    }
+}
+```
+
 
 
 
@@ -210,7 +338,7 @@ document.getElementById("parent-list").addEventListener("click",function(e) {
 
     第一个阻塞，第二个只在打印内容时阻塞，第三个只在符合条件后才阻塞。
 
-- `script`标签添加`async`属性，将脚本标记为异步，则不会阻塞DOM构建。
+- `script`标签添加`async`属性（下载完就执行）或`defer`属性（渲染完再执行），将脚本标记为异步，则不会阻塞DOM构建。
 
 - img**不会**阻塞页面的首次渲染。关键渲染路径，通常是指HTML，CSS和JavaScript
 
@@ -243,6 +371,20 @@ document.getElementById("parent-list").addEventListener("click",function(e) {
 
 
 
+### 🎃按需加载
+
+- `import()`：一种类似`require`的运行时加载。
+- webpack + react-router
+  - Route标签中，getComponent替换component，用于异步加载。
+  - 将资源分类打包，分成不同的chunk。
+  - 使用`require.ensure`，在运行时按需加载需要的资源。
+
+
+
+
+
+
+
 ### 🎃计算机网络
 
 ##### HTTP协议
@@ -262,17 +404,45 @@ document.getElementById("parent-list").addEventListener("click",function(e) {
 
 
 
+##### TCP协议
+
+- 建立连接时：3次握手
+
+  1. Client发送连接请求报文`(SYN=1, seq=client_isn)`
+
+  2. Server接收连接请求，回复ACK报文，然后为连接分配资源。
+
+     `(SYN=1, seq=server_isn) （ack=client_isn+1）`
+
+  3. Client接收ACK报文，也向Server发送ACK报文，然后为连接分配资源。
+
+     `(SYN=0, seq=client_isn+1) (ack=server_isn+1)`
+
+- 断开连接时：4次握手（下面假设是client发起连接中断）
+
+  1. Client发起中断请求，发送FIN报文。
+  2. Server收到FIN报文后，回复ACK报文。（可能数据还没传完，所以先ACK。Client进入FIN_WAIT状态）
+  3. Server传完数据后，回复FIN报文。
+  4. Client收到Server的FIN报文后，向Server发送ACK报文，然后进入TIME_WAIT状态。经过2MSL时间后，Client进入CLOSED状态。（MSL：最大报文生存时间）
+
+
+
+##### Socket编程
+
+- Socket是一种门面模式，它把复杂的TCP/IP协议隐藏在Socket接口后面，用来和应用层通信。
+- 是网络间不同计算机上的**进程通信**的一种方法。
+
 
 
 ### 🍪React-Redux
 
 ##### Provider
 - 在原应用组件上包裹一层，使原来整个应用成为Provider的子组件
-- 接受Redux的store作为props，**通过context**传递给子组件。（Context相当于一个独立的空间，父组件通过getChildContext()向该空间写值。子组件通过this.context.xxx读取）
+- 接受Redux的store作为props，**通过context** 传递给子组件。（Context相当于一个独立的空间，父组件通过getChildContext()向该空间写值。子组件通过this.context.xxx读取）
 
 ##### Connect
 - 返回一个wrapContent的function，内部对store上的state、action、原组件上的props进行**merge**，传递给原组件。
-- **监听**store tree的变化。通过store.subscribe(listener)注册一个监听器。在Connect组件didMount时注册，willUnmount时注销。
+- **监听** store tree的变化。通过store.subscribe(listener)注册一个监听器。在Connect组件didMount时注册，willUnmount时注销。
 - Connect组件中维护了一个**this.state.storeState**，store发生变化时，Connect更新自己的state，内部的子组件得到重新render。
 - mapStateToPros, mapDispatchToProps的返回值都是需要merge进props的state和action （出现同名，后者优先）
 
@@ -312,7 +482,7 @@ export default function createStore(reducer, initialState) {
   }
 
   ...
-  
+
   return {
     dispatch,
     subscribe, // store更新后的回调函数
@@ -322,7 +492,7 @@ export default function createStore(reducer, initialState) {
 }
 ```
 
-subscribe的方法的返回值是一个**unsubscribe**方法。redux采用观察者模式，当store tree更新后，**依次执行**subscribe里面的所有listener。
+subscribe的方法的返回值是一个**unsubscribe**方法。redux采用观察者模式，当store tree更新后，**依次执行** subscribe里面的所有listener。
 
 ##### bindActionCreator
 
@@ -350,13 +520,347 @@ export default function bindActionCreators(actionCreators, dispatch) {
 
 
 
+### 6️⃣Class
+
+```javascript
+class Point {
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
+  }
+
+  toString() {
+    return '(' + this.x + ', ' + this.y + ')';
+  }
+}
+```
+
+- 类的所有方法都定义在类的prototype上
+
+  ```javascript
+  Point.toString === Point.prototype.toString
+
+  Point === Point.prototype.constructor
+  // prototype对象的constructor属性，直接指向类本身
+  ```
+
+- 类的属性名，可以采用表达式
+
+  ```javascript
+  let methodName = "getArea";
+  class Square{
+    constructor(length) {
+      // ...
+    }
+
+    [methodName]() {
+      // ...
+    }
+  }
+  ```
+
+- 可以通过类的实例的`__proto__`属性，为Class添加方法
+
+  ```javascript
+  var p1 = new Point(2,3);
+  var p2 = new Point(3,2);
+
+  p1.__proto__.printName = function () { return 'Oops' };
+
+  p1.printName() // "Oops"
+  p2.printName() // "Oops"
+
+  var p3 = new Point(4,2);
+  p3.printName() // "Oops"
+  ```
+
+- 使用Symbol可以实现类的**私有方法**
+
+  ```javascript
+  const bar = Symbol('bar');
+  const snaf = Symbol('snaf');
+
+  export default class myClass{
+
+    // 公有方法
+    foo(baz) {
+      this[bar](baz);
+    }
+
+    // 私有方法
+    [bar](baz) {
+      return this[snaf] = baz;
+    }
+
+    // ...
+  };
+
+  // export暴露的只有myClass，Symbol是取不到的。
+  ```
+
+- 类中的this问题：
+
+  ```javascript
+  class Logger {
+    printName(name = 'there') {
+      this.print(`Hello ${name}`);
+    }
+
+    print(text) {
+      console.log(text);
+    }
+  }
+
+  const logger = new Logger();
+  const { printName } = logger;
+  printName(); // 会报错，因为单独使用时，this指向运行时所在的环境。
+
+  //解决办法：
+  // 1. 在constructor里面bind
+  class Logger {
+    constructor() {
+      this.printName = this.printName.bind(this);
+    }
+
+    // ...
+  }
+
+  // 2. 箭头函数
+  class Logger {
+    constructor() {
+      this.printName = (name = 'there') => {
+        this.print(`Hello ${name}`)
+      }
+    }
+  }
+
+  // 3. Proxy
+  // 申明一个修改原Class的get行为的Proxy，在这个Proxy种，对target进行this的绑定。
+  ```
+
+- Class的继承：`super`用来调用父类的方法。子类必须在constructor内部调用`super()`。因为子类没有this对象，而是继承父类的this对象。如果不调用，子类得不到this对象。
+
+- Class的static方法，不会被实例继承，只能通过调用类来使用。
+
+  ```javascript
+  class Foo {
+    static classMethod() {
+      return 'hello';
+    }
+  }
+
+  Foo.classMethod() // 'hello'
+
+  var foo = new Foo();
+  foo.classMethod()
+  // TypeError: foo.classMethod is not a function
+  ```
+
+- ES6中，Class没有静态属性这种说法。
+
+
+
+
+
+### 6️⃣Module
+
+- CommonJS：运行时加载。
+
+  ```javascript
+  // CommonJS模块
+  let { stat, exists, readFile } = require('fs');
+
+  // 等同于
+  let _fs = require('fs');
+  let stat = _fs.stat;
+  let exists = _fs.exists;
+  let readfile = _fs.readfile;
+
+  // 会加载fs的所有方法。无法做静态优化。
+  ```
+
+- `import`：
+
+  - 编译时加载。在编译阶段执行import语句。
+  - 按需加载。只import大括号内需要的东西。
+  - 具有**提升效果**。
+  - 是**Singleton**模式。对同一个模块多次import，只会执行一次。
+
+- `export`：输出一个function或变量时，要加`{}`
+
+  ```javascript
+  export function f() {};
+  // or
+  function f() {}
+  export {f}
+
+  //如果直接export f 会报错。
+  ```
+
+- ES6的模块加载与CommonJS的区别：
+
+  - CommonJS输出的是值的**拷贝**，模块内部的变化不会影响这个值。且CommonJS会对输出的值做**缓存**。
+
+  - ES6输出的是值的**引用**，相当于UNIX的**符号链接**。不做缓存，是动态引用。
+
+  - Node加载ES6模块的路径问题：
+
+    ```javascript
+    import './foo';
+    // 依次寻找
+    //   ./foo.js
+    //   ./foo/package.json
+    //   ./foo/index.js
+
+    import 'baz';
+    // 依次寻找
+    //   ./node_modules/baz.js
+    //   ./node_modules/baz/package.json
+    //   ./node_modules/baz/index.js
+    // 寻找上一级目录
+    //   ../node_modules/baz.js
+    //   ../node_modules/baz/package.json
+    //   ../node_modules/baz/index.js
+    // 再上一级目录
+    ```
+
+- CommonJS模块加载原理：
+
+  - CommonJS中，一个模块就是一个脚本文件。
+
+  - `require`命令第一次加载该脚本，会在内存中生成一个对象：
+
+    ```json
+    {
+      id: '...',
+      exports: { ... },   // 模块输出的各个接口
+      loaded: true,       // 脚本是否执行完毕
+      ...
+    }
+    ```
+
+  - 后面无论加载多少次，都是从系统缓存里读取。
+
 ### 6️⃣Generator
 
 - 状态机的概念，内部封装多个状态。
 - 执行Generator函数会返回一个遍历器对象，遍历器可以依次遍历Generator函数内部的各个状态。
 - Generator可以没有yield语句，这时就变成了一个单纯的暂缓执行函数。
 - Generator作为遍历器生成函数，可以直接复制给`[Symbol.iterator]`
-- ​
+
+
+##### 使用Generator实现协程
+
+- 异步任务的封装
+
+  ```javascript
+  var fetch = require('node-fetch');
+
+  function* gen(){
+    var url = 'https://api.github.com/users/github';
+    var result = yield fetch(url);
+    console.log(result.bio);
+  }
+
+  // 执行：
+
+  var g = gen();
+  var result = g.next();
+
+  result.value.then(function(data){
+    return data.json();
+  }).then(function(data){
+    g.next(data);
+  });
+  ```
+
+  上面代码中，首先执行 Generator 函数，**获取遍历器对象**，然后使用`next`方法（第二行），执行异步任务的**第一阶段**。由于`Fetch`模块返回的是一个**Promise对象**，因此要用`then`方法调用下一个`next`方法。
+
+
+
+### 6️⃣Thunk函数
+
+- 一种“传名调用”的实现策略。
+
+  - 传名调用：参数在被使用的时候才会计算。
+  - 传值调用：参数传入的时候，就会被计算。
+
+  ```javascript
+  // 正常版本的readFile（多参数版本）
+  fs.readFile(fileName, callback);
+
+  // Thunk版本的readFile（单参数版本）
+  var Thunk = function (fileName) {
+    return function (callback) {
+      return fs.readFile(fileName, callback);
+    };
+  };
+
+  var readFileThunk = Thunk(fileName);
+  readFileThunk(callback);
+  ```
+
+  `fs`模块的`readFile`方法是一个多参数函数，两个参数分别为文件名和回调函数。经过转换器处理，它变成了一个**单参数函数**，只接受回调函数作为参数。这个单参数版本，就叫做**Thunk函数**。
+
+
+
+### 6️⃣async函数
+
+- 用async替代*，用await替代yield，其他和Generator一样
+
+- 是Generator的语法糖，不用手动执行next()，和普通函数一样执行。
+
+- 返回值是一个promise。
+
+  ```javascript
+  async function f() {
+    return 'hello world';
+  }
+
+  f().then(v => console.log(v))
+  // "hello world"
+
+
+  // 例子2：
+  async function getTitle(url) {
+    let response = await fetch(url);
+    let html = await response.text();
+    return html.match(/<title>([\s\S]+)<\/title>/i)[1];
+  }
+  getTitle('https://tc39.github.io/ecma262/').then(console.log)
+  // "ECMAScript 2017 Language Specification"
+  ```
+
+- await命令后面是一个Promise对象。如果不是，会被转成一个立即resolve的Promise对象。
+
+- async函数的实现原理：Generator函数和自动执行器。
+
+  ```javascript
+  function spawn(genF) {
+    return new Promise(function(resolve, reject) {
+      var gen = genF();
+      function step(nextF) {
+        try {
+          var next = nextF();
+        } catch(e) {
+          return reject(e);
+        }
+        if(next.done) {
+          return resolve(next.value);
+        }
+        Promise.resolve(next.value).then(function(v) {
+          step(function() { return gen.next(v); });
+        }, function(e) {
+          step(function() { return gen.throw(e); });
+        });
+      }
+      step(function() { return gen.next(undefined); });
+    });
+  }
+  ```
+
+  ​
+
 
 
 
@@ -387,9 +891,9 @@ Obj.prototype[Symbol.iterator] = function() {
   let iterator = {
     next: next
   }
-  
+
   let current = this
-  
+
   function next() {
     if(current){
       let value = current.value
@@ -399,7 +903,7 @@ Obj.prototype[Symbol.iterator] = function() {
       return {done: true}
     }
   }
-  
+
   return iterator
 }
 
@@ -494,7 +998,7 @@ Proxy代理的情况下，this指向Proxy代理。
 
 `__proto__`: 一种属性，每个对象都有这个属性，指向该对象的原型对象
 
-`prototype`: 只有function才有。用来存储要被继承的属性和方法。
+`prototype`: 只有function才有。用来存储要被继承的属性和方法。是function的一个属性，里面包含一个对象。`DOG.prototype = {species: '犬科'}`
 
 `Object.prototype.__proto__ === null`: Object.prototype是原型链的顶端
 
@@ -621,7 +1125,7 @@ The most common way this feature is used -- and I would argue, abused -- is to t
 
 - 闭包的内嵌函数中，要const that = this
 
-- 当把含有this的方法赋值给**一个变量**时，要通过bind维持this的值
+- 当把含有this的方法赋值给 **一个变量** 时，要通过bind维持this的值
 
   ```javascript
   var data = [
@@ -648,14 +1152,35 @@ The most common way this feature is used -- and I would argue, abused -- is to t
 
 
 
+### 🔨var,let,const的一点小细节
+
+- `for…of`循环中，`const`和`let`每次循环都会生成一个新的绑定，`var`只生成一个。
+
+- 普通for循环中，`const`不能用来申明循环的下标。
+
+- 暂时性死区：只要块级作用域内存在`let`命令，它所声明的变量就“绑定”（binding）这个区域，不再受外部的影响。
+
+  ```javascript
+  var tmp = 123;
+
+  if (true) {
+    tmp = 'abc'; // ReferenceError
+    let tmp;
+  }
+
+  // 存在全局变量tmp，但是块级作用域内let又声明了一个局部变量tmp，导致后者绑定这个块级作用域，所以在let声明变量前，对tmp赋值会报错。
+  ```
+
+
+
 
 
 ### 🔨在string上使用Array.map
 
 ```javascript
 var map = Array.prototype.map;
-var a = map.call('Hello World', function(x) { 
-  return x.charCodeAt(0); 
+var a = map.call('Hello World', function(x) {
+  return x.charCodeAt(0);
 });
 ```
 
@@ -672,12 +1197,177 @@ var a = map.call('Hello World', function(x) {
 - getElementBy返回的是live NodeList
 
   ```javascript
-  var ul = document.getElementsByTagName('ul')[0], 
-      lis = ul.getElementsByTagName("li"); 
+  var ul = document.getElementsByTagName('ul')[0],
+      lis = ul.getElementsByTagName("li");
   for(var i = 0; i < lis.length ; i++){
-      ul.appendChild(document.createElement("li")); 
+      ul.appendChild(document.createElement("li"));
   }
   // 会造成无限循环，每次调用live NodeList都会重新去查询一遍DOM
   ```
 
   ​
+### 🔨debounce、throttle、requestAnimationFrame
+
+- debounce：把触发非常频繁的事件（比如按键）合并成一次执行。
+
+  - 典型例子：autocomplete，等用户停止输入之后再发送请求。
+
+  - 实现：
+
+    ```javascript
+    function debounce(fn, delta) {
+      var timeoutID = null;
+
+      return function() {
+        clearTimeout(timeoutID);
+
+        // 保存函数调用时的上下文和参数
+        var context = this；
+        var args = arguments;
+
+        timeoutID = setTimeout(function() {
+          fn.apply(context, args);
+        }, delta);
+      };
+    }
+    ```
+
+    ​
+
+- throttle：保证每 X 毫秒恒定的执行次数。
+
+  - 典型列子：页面底部的载入更多。
+
+  - 与debounce的区别：`_.throttle(func,300)` 300ms内，func至少执行一次。
+
+  - 实现：
+
+    ```javascript
+    function throttle(fn,threshhold){
+      var last  		//记录上次运行时间
+      var timeoutID  	//定时器
+
+      threshhold || (threshhold = 250)
+
+      return function(){
+
+        var context = this
+        var args = arguments
+
+        var now = Date.now()
+
+        if(last && now < last + threshhold){
+          clearTimeout(timeoutId)
+
+          timeoutId = setTimeout(function(){
+            last = now
+            fn.apply(context,args)
+          },threshhold)
+        }else{
+          last = now
+          fn.apply(context,args)
+        }
+      }
+    }
+    ```
+
+    ​
+
+- requestAnimationFrame：可替代 throttle ，函数需要重新计算和渲染屏幕上的元素时，想保证动画或变化的平滑性，可以用它。但需要手动控制动画的开始和结束。
+
+
+
+### 🔨解决setTimeout的this问题
+
+```javascript
+myArray = ['zero', 'one', 'two'];
+myArray.myMethod = function (sProperty) {
+    alert(arguments.length > 0 ? this[sProperty] : this);
+};
+
+myArray.myMethod(); // prints "zero,one,two"
+myArray.myMethod(1); // prints "one"
+
+
+setTimeout(myArray.myMethod, 1000); // prints "[object Window]" after 1 second
+setTimeout(myArray.myMethod, 1500, '1'); // prints "undefined" after 1.5 seconds
+```
+
+在不使用bind的情况下，setTimeout里面的这个function，this默认指向window。
+
+解决办法：
+
+```javascript
+setTimeout(function(){myArray.myMethod()}, 2000); // prints "zero,one,two" after 2 seconds
+setTimeout(function(){myArray.myMethod('1')}, 2500); // prints "one" after 2.5 seconds
+
+// or use arrow function
+
+setTimeout(() => {myArray.myMethod()}, 2000); // prints "zero,one,two" after 2 seconds
+setTimeout(() => {myArray.myMethod('1')}, 2500); // prints "one" after 2.5 seconds
+
+// 或者使用Proxy重写window的setTimeout函数
+var __nativeST__ = window.setTimeout,
+
+window.setTimeout = function (vCallback, nDelay /*, argumentToPass1, argumentToPass2, etc. */) {
+  var oThis = this,
+      aArgs = Array.prototype.slice.call(arguments, 2);
+  return __nativeST__(vCallback instanceof Function ? function () {
+    vCallback.apply(oThis, aArgs);
+  } : vCallback, nDelay);
+};
+```
+
+#### 其他的this问题：
+
+- 非strict模式下，this只跟**调用者**有关。是谁在调用，就指向谁。
+
+- 箭头函数中，this只跟**定义时**的上下文有关，跟被谁调用无关。
+
+  - 特殊情况：
+
+    ```javascript
+    var obj = {
+      bar: function(){
+        var x = () => this
+        return x
+      }
+    }
+
+    var fn = obj.bar()
+
+    console.log(fn() === obj) // true
+
+    var fn2 = obj.bar
+
+    console.log(fu2()() === window) // true
+    ```
+
+- function作为一个object的方法（属性）时，this**指向这个object**。且如果这个function被多个object引用时，this指向**最后一个**。
+
+- 原型链上的this：
+
+  ```javascript
+  var o = {f: function() { return this.a + this.b; }};
+  var p = Object.create(o);
+  p.a = 1;
+  p.b = 4;
+
+  console.log(p.f());
+  // 5
+  // 虽然f方法在原型o上，但this依旧指向p
+  ```
+
+  ​
+
+
+
+JavaScript模块引用
+
+组件化，模块化
+
+canvas
+
+按需加载
+
+深拷贝
