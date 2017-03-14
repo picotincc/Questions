@@ -668,7 +668,7 @@ Redux在Flux的基础上，加入了 **Reducer** 和 **Middleware** 的概念。
 
 - 与Gulp对比：内存处理方面，webpack共享一个流，gulp每一个任务用一个流。
 
-- CSS模块化：
+- Webpack是怎么做CSS模块化的：
 
   - `css?modules&localIdentName=[name]__[local]-[hash:base64:5]`。对CSS模块化处理，`localIdentName`生成全局唯一的css样式名称。
 
@@ -688,6 +688,37 @@ Redux在Flux的基础上，加入了 **Reducer** 和 **Middleware** 的概念。
 
     // 实现了css，js的变量共享。
     ```
+
+- 配置文件的主要参数：
+
+  - entry：js入口源文件
+  - output：生成文件
+  - module：字符串的处理，文件的编译优化
+  - resolve：解决文件路径的指向
+  - plugins：插件
+
+- 常用loaders：
+
+  - 处理样式：less-loader, sass-loader
+  - 处理图片：url-loader, file-loader
+  - 处理js：babel-loader, babel-preset-es2015
+
+- 常用Plugins：
+
+  - 代码热替换：HotModuleReplacementPlugin
+  - 将css生成文件，而不是内敛：ExtractTextPlugin
+  - 代码丑化：UglifyJsPlugin
+  - 多个html共用一个js文件(chunk)：CommonsChunkPlugin
+
+- 使用优化
+
+  - 区分开发环境和生产环境：通过node的环境变量设置
+  - 善用alias：对于一些经常要被引用的库，通过resolve参数直接配置路径的位置
+
+- 热加载原理：
+
+  > 文件修改会触发 webpack 重新构建，服务器通过向浏览器发送更新消息，浏览器通过 jsonp 拉取更新的模块文件，jsonp 回调触发模块热替换逻辑。
+
 
 
 
@@ -1032,7 +1063,7 @@ getTitle('https://tc39.github.io/ecma262/').then(console.log)
 - async函数的实现原理：Generator函数和自动执行器。
 
   ```javascript
-function spawn(genF) {
+  function spawn(genF) {
   return new Promise(function(resolve, reject) {
     var gen = genF();
     function step(nextF) {
@@ -1052,7 +1083,7 @@ function spawn(genF) {
     }
     step(function() { return gen.next(undefined); });
   });
-}
+  }
   ```
 
   ​
@@ -1201,6 +1232,25 @@ Proxy代理的情况下，this指向Proxy代理。
 `Function.prototype === Function.__proto__`: 都指向Function.prototype(JS标准的内置对象)
 
 `Function.prototype.__proto__ = Object.prototype`: JS标准的内置对象的原型是Object.prototype
+
+- prototype实现JavaScript的继承
+
+  ```javascript
+  // 父类
+  function Animal(){
+    this.species = "动物";
+  }
+
+  // 子类
+  Cat.prototype = new Animal();
+  Cat.prototype.constructor = Cat;
+  var cat1 = new Cat("大毛","黄色");
+  alert(cat1.species); // 动物
+  ```
+
+  - 子类的`prototype`指向父类的`实例`。
+  - 子类的实例的`__proto__`指向父类的`prototype`
+  - 子类需要手动修正prototype的constructor函数，否则constructor会指向Animal。
 
 
 
