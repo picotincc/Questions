@@ -256,6 +256,16 @@ document.getElementById("parent-list").addEventListener("click",function(e) {
 
 
 
+
+### HTTPS与HTTP
+
+- ​
+
+
+
+
+
+
 ### 🎃HTTP缓存
 
 ##### ETag
@@ -433,7 +443,7 @@ document.getElementById("parent-list").addEventListener("click",function(e) {
 
 
 
-### 🎃计算机网络
+### 🎃计算机网络与网络安全
 
 ##### HTTP协议
 
@@ -441,14 +451,53 @@ document.getElementById("parent-list").addEventListener("click",function(e) {
   - 表明request或response的content-length是未知的，消息体由数量为定的块组成。
   - 以最后一个大小为0的块作为传输结束的标志。
   - 启用Keep-live模式后，两种判断传输完成的方法：1. 传输长度满足Content-Length（静态页面或图片）2. chunked模式（动态页面）
+
 - 会话跟踪：session的实现依赖于Cookie，sessionID放到cookie中传给client。
+
+  ​
+
+##### 网络安全
+
+- 内容安全性政策（CSP）
+
+  - 使用白名单告诉客户端允许加载和不允许加载的内容。
+
+    > 1. 浏览器只允许执行或渲染来自白名单的资源
+    >
+    >    Content-Security-Policy: script-src 'self' https://apis.google.com
+
+  - 内敛代码和`eval()`被视为是有害的
+
+    > 1. 使用内联函数（而不是字符串）重写您当前正在进行的任何 `setTimeout` 或 `setInterval` 调用。
+    > 2. 通过内置 `JSON.parse` 解析 JSON，而不是依靠 `eval` 来解析。
+    > 3. 在运行时避免使用内联模板：为在运行时加快模板生成的速度， 许多模板库大量使用 `new Function()`。
+
+  - 可用的一些指令及作用：
+
+    | 指令                | 作用                                       | 例子                                       |
+    | :---------------- | :--------------------------------------- | :--------------------------------------- |
+    | child-src         | 控制嵌入的帧内容和工作线程的来源                         | child-src https://youtube.com            |
+    | script-src        | 控制脚本来源                                   | script-src 'self' https://apis.google.com |
+    | connect-src       | 限制可连接的来源                                 | 连接类型：XHR、WebSockets                      |
+    | font-src          | 限制网页字体来源                                 | font-src https://themes.google           |
+    | frame-ancestors   | 指定可嵌入当前页面的来源                             | 适用于`<frame>`、`<iframe>`、`embed`、`applet` |
+    | img-src/media-src | 定义可从中加载图像/视频和音频的来源                       |                                          |
+    | object-src        | 控制Flash和其他插件                             |                                          |
+    | plugin-src        | 限制页面可以调用的插件种类                            |                                          |
+    | default-src       | 设置默认行为，适用于以-src结尾的任意指令。                  |                                          |
+    | sandbox           | 将此页面视为使用 `sandbox` 属性在 `<iframe>` 的内部加载的。这可能会对该页面产生广泛的影响：强制该页面进入一个唯一的来源，同时阻止表单提交等其他操作。 |                                          |
+
 - 如何防范跨站攻击（CSRF）
+
   - 关键操作只接受POST请求
   - 验证码
   - 检测Referer
   - Token：足够随机，一次性，保密性。
-- 如何防范跨站脚本攻击（XSS）：过滤用户输入。
 
+- 如何防范跨站脚本攻击（XSS）：
+
+  - 过滤用户输入。
+  - 使用外部js文件替代内敛js代码的方法。不仅可以防范xss，还有利于静态资源缓存。
 
 
 
@@ -477,8 +526,37 @@ document.getElementById("parent-list").addEventListener("click",function(e) {
 
 ##### Socket编程
 
-- Socket是一种门面模式，它把复杂的TCP/IP协议隐藏在Socket接口后面，用来和应用层通信。
+- Socket是一种**门面模式**，它把复杂的TCP/IP协议隐藏在Socket接口后面，用来和应用层通信。
 - 是网络间不同计算机上的**进程通信**的一种方法。
+
+
+
+
+
+
+
+
+### 🍪React性能优化
+
+- shouldComponentUpdate
+
+- 使用Production Build
+
+  ```javascript
+  new webpack.DefinePlugin({
+    'process.env': {
+      NODE_ENV: JSON.stringify('production')
+    }
+  }),
+  new webpack.optimize.UglifyJsPlugin()
+  ```
+
+- React.PureComponent：会对state和props进行一个`shallow comparison`来判断是否需要update，但是如果数据结构比较复杂的话，shallow comparison是没作用的。
+
+- 使用Immutable Data解决上述浅拷贝的问题。
+
+
+
 
 
 
@@ -566,12 +644,50 @@ export default function bindActionCreators(actionCreators, dispatch) {
 
 当 middleware 链中的最后一个 middleware 开始 dispatch action 时，这个 action 必须是一个普通对象。这是 同步式的 Redux 数据流 开始的地方（译注：这里应该是指，你可以使用任意多异步的 middleware 去做你想做的事情，但是需要使用普通对象作为最后一个被 dispatch 的 action ，来将处理流程带回同步方式）。
 
+##### Redux设计思想
+
+沿用Flux单向数据流的思想。**Store** 负责接收 **Views** 传来的 **Action** , **Reducer** 根据 **Action** 的 **Type** 和 **Payload** 对 **Store** 里的state进行修改。最后，Store通知Views数据更新了，Views取到最新的state之后，进行重新render。
+
+Redux在Flux的基础上，加入了 **Reducer** 和 **Middleware** 的概念。
+
+
+
+### 🍪ImmutableJS
+
+解决JavaScript引用赋值带来的问题，deepCopy会浪费CPU和内存，ImmutableJS采用 **Structural Sharing** 的概念，即如果对象树种一个节点发生变化，只修改这个节点和受它影响的父节点，其他节点进行共享。
+
+- 结构共享可以节省内存。
+- 提供了数据的Undo/Redo。
+- 函数是编程。
+
+
+
 
 
 ### 🍪Webpack
 
 - 与Gulp对比：内存处理方面，webpack共享一个流，gulp每一个任务用一个流。
-- ​
+
+- CSS模块化：
+
+  - `css?modules&localIdentName=[name]__[local]-[hash:base64:5]`。对CSS模块化处理，`localIdentName`生成全局唯一的css样式名称。
+
+  - ```scss
+    /* config.scss */
+    $primary-color: #f40;
+
+    :export {
+      primaryColor: $primary-color;
+    }
+
+    /* app.js */
+    import style from 'config.scss';
+
+    // 会输出 #F40
+    console.log(style.primaryColor);
+
+    // 实现了css，js的变量共享。
+    ```
 
 
 
@@ -898,41 +1014,45 @@ class Point {
 
 
   // 例子2：
-  async function getTitle(url) {
-    let response = await fetch(url);
-    let html = await response.text();
-    return html.match(/<title>([\s\S]+)<\/title>/i)[1];
-  }
-  getTitle('https://tc39.github.io/ecma262/').then(console.log)
-  // "ECMAScript 2017 Language Specification"
-  ```
+
+```javascript
+async function getTitle(url) {
+  let response = await fetch(url);
+  let html = await response.text();
+  return html.match(/<title>([\s\S]+)<\/title>/i)[1];
+}
+
+getTitle('https://tc39.github.io/ecma262/').then(console.log)
+
+// "ECMAScript 2017 Language Specification"
+```
 
 - await命令后面是一个Promise对象。如果不是，会被转成一个立即resolve的Promise对象。
 
 - async函数的实现原理：Generator函数和自动执行器。
 
   ```javascript
-  function spawn(genF) {
-    return new Promise(function(resolve, reject) {
-      var gen = genF();
-      function step(nextF) {
-        try {
-          var next = nextF();
-        } catch(e) {
-          return reject(e);
-        }
-        if(next.done) {
-          return resolve(next.value);
-        }
-        Promise.resolve(next.value).then(function(v) {
-          step(function() { return gen.next(v); });
-        }, function(e) {
-          step(function() { return gen.throw(e); });
-        });
+function spawn(genF) {
+  return new Promise(function(resolve, reject) {
+    var gen = genF();
+    function step(nextF) {
+      try {
+        var next = nextF();
+      } catch(e) {
+        return reject(e);
       }
-      step(function() { return gen.next(undefined); });
-    });
-  }
+      if(next.done) {
+        return resolve(next.value);
+      }
+      Promise.resolve(next.value).then(function(v) {
+        step(function() { return gen.next(v); });
+      }, function(e) {
+        step(function() { return gen.throw(e); });
+      });
+    }
+    step(function() { return gen.next(undefined); });
+  });
+}
   ```
 
   ​
@@ -1486,3 +1606,9 @@ canvas
 webpack
 
 设计模式
+
+javascript 继承
+
+子类的原型为什么指向父类的实例而不是父类的原型。
+
+https和http
