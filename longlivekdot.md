@@ -257,11 +257,54 @@ document.getElementById("parent-list").addEventListener("click",function(e) {
 
 
 
-### HTTPS与HTTP
+### 🎃META标签（不仅仅是charset=“uft-8”）
 
-- ​
+- 定义html页面的 **说明** ， **关键字** ， **最后修改日期** ， 和其他的 **元数据** 。这些数据服务于浏览器（如何布局或重载页面），搜索引擎和其他网络服务。
+
+- `name`用于指定`content`的类型
+
+  ```html
+  <meta name="keywords" content="Lxxyx,博客，文科生，前端">
+
+  <meta name="description" content="文科生，热爱前端与编程。目前大二，这是我的前端博客">
+
+  <!-- robots用于指定爬虫的索引方式 -->
+  <meta name="robots" content="none">
+
+  <!-- viewport用于指定移动端默认窗口大小等属性 -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  ```
+
+- http-equiv属性
+
+  ```html
+  <meta charset="utf-8"> //HTML5设定网页字符集的方式，推荐使用UTF-8
+
+  <!-- 指定IE和Chrome使用最新版本渲染当前页面 -->
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/> 
+
+  <!-- 指定cache-control策略 -->
+  <meta http-equiv="cache-control" content="no-cache">
+
+  <!-- 指定缓存到期时间 -->
+  <meta http-equiv="expires" content="Sunday 26 October 2016 01:00 GMT" />
+  ```
+
+  ​
 
 
+
+### 🎃HTTPS与HTTP
+
+- HTTP直接和TCP通信。HTTPS先与 **SSL** 通信，再由SSL和TCP通信。
+
+- SSL采用一种叫做 **公开密钥加密** 的加密方式。
+
+  > 发送密文的一方使用 **对方的公开密钥** 进行加密处理, 对方收到被加密的信息后, 在使用 **自己的私有密钥** 进行解密。
+
+- HTTPS采用混合加密机制。
+
+- HTTP默认使用80端口，HTTPS默认使用443。
 
 
 
@@ -560,6 +603,45 @@ document.getElementById("parent-list").addEventListener("click",function(e) {
 
 
 
+### 🍪React与Vue的对比
+
+- 相同点
+
+  - 都是用的Virtual Dom
+  - 都提供了响应式和组件化的视图组件
+  - 都有配套的路由和负责处理全局状态管理的库。
+
+- Vue
+
+  - global event bus：$emit和$on时间，和angular 1里面的通信机制很像
+  - vuex：vue的全局状态管理。以mutations替代reducer，无需switch。且Vue有自动重新渲染的特性，所以vuex里面的数据变化后，没有subscribe的过程。
+  - vue-router：vue的路由管理
+  - 似乎只能运行在IE9以上的浏览器？
+
+- Vue的响应式系统：
+
+  > Vue实例中，data的所有属性都会使用`Object.defineProperty`转为getter和setter。然后每个组件的实例，都有一个watcher，一旦data中的某个setter被触发，watcher通知component进行re-render。
+
+  所以，如果要往某个实例的data中，动态添加**根级响应属性**或**丰富**某个已有属性，需要使用`Vue.set(vm.somOjbect, 'b', 2）`以及`_.extend()`等方法。
+
+- Vue异步执行DOM更新。与react在setState的时候类似。
+
+
+
+### 🍪Vue和React的服务端渲染
+
+- 为什么要SSR：
+  - 利于SEO，爬虫对于异步加载的内容是无能为力的。(Google例外)
+  - 降低网络延迟，通过减少页面请求数量，保证用户在低网速下也能看到基本的内容。
+  - 如果只是来改善一个少数的营销页面，用 **预渲染** 替换。
+- Vue支持流式渲染：Vue.renderTostream()
+- React服务端渲染过程：服务端渲染一遍，客户端也渲染一遍（实际上不会渲染两边，只是在客户端对服务端的component进行实例化），两边是 **同构** 的，服务端第一次渲染完成后，后面客户端掌握对组件的控制权。
+  1. Express.js搭建服务端框架
+  2. 使用webpack构建供前端使用的js文件
+  3. 使用babel-register解决服务端的jsx语法和es6语法。
+
+
+
 ### 🍪React-Redux
 
 ##### Provider
@@ -618,7 +700,7 @@ export default function createStore(reducer, initialState) {
 }
 ```
 
-subscribe的方法的返回值是一个**unsubscribe**方法。redux采用观察者模式，当store tree更新后，**依次执行** subscribe里面的所有listener。
+subscribe的方法的返回值是一个**unsubscribe**方法。redux采用 **观察者模式** ，当store tree更新后，**依次执行** subscribe里面的所有listener。
 
 ##### bindActionCreator
 
@@ -668,9 +750,9 @@ Redux在Flux的基础上，加入了 **Reducer** 和 **Middleware** 的概念。
 
 - 与Gulp对比：内存处理方面，webpack共享一个流，gulp每一个任务用一个流。
 
-- Webpack是怎么做CSS模块化的：
+- Webpack做CSS模块化的目的：避免CSS泄露到全局环境中。（style-loader和css-loader只是提供了解读和加载`<style>`标签到html的头部中。）
 
-  - `css?modules&localIdentName=[name]__[local]-[hash:base64:5]`。对CSS模块化处理，`localIdentName`生成全局唯一的css样式名称。
+  - `css?modules&localIdentName=[name]__[local]-[hash:base64:5]`。对CSS模块化处理，`localIdentName`生成全局唯一的css样式名称。使得每个被引入js模块的`styles`都带上了全局唯一的prefix和suffix，从而实现了 **模块化**。
 
   - ```scss
     /* config.scss */
@@ -714,10 +796,17 @@ Redux在Flux的基础上，加入了 **Reducer** 和 **Middleware** 的概念。
 
   - 区分开发环境和生产环境：通过node的环境变量设置
   - 善用alias：对于一些经常要被引用的库，通过resolve参数直接配置路径的位置
+  - `devtool: "eval"`可以提高build的速度。`only maps to compiled source code per module`
+
+- webpack-dev-server的作用：
+
+  监控js文件的变化，如果js文件发生变化，webpack会重新打包bundle.js，然后webpack-dev-server将更新后的bundle.js发给浏览器。加上—hot之后，可以热替换。
 
 - 热加载原理：
 
   > 文件修改会触发 webpack 重新构建，服务器通过向浏览器发送更新消息，浏览器通过 jsonp 拉取更新的模块文件，jsonp 回调触发模块热替换逻辑。
+
+- Webpack中真正对jsx代码进行编译的是`babel-loader`，webpack的存在使得这些js文件都模块化。
 
 
 
