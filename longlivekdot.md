@@ -106,9 +106,15 @@
 - DOM存储：sessionStorage、localStorage
 - `<audio>`和`<video>`标签支持新的多媒体内容的操作。
 - Web Worker：在后台线程运行脚本。线程可以执行任务而不干扰用户界面。生成操作系统级别的线程，且无法访问非线程安全的组件和DOM。
+- 新标签：`<section>`,`<figure>`,`<output>`
 
 
 
+
+### 🎃HTML语义化
+
+- 使页面内容结构化，便于浏览器和搜索引擎的解析。
+- 便于阅读维护和理解。
 
 
 
@@ -120,17 +126,26 @@
 - 字体大小使用em或rem
 - 自适应与响应式：
   - 自适应：自动适应不同尺寸的屏幕，布局一般不变。
-  - 响应式：根据不同尺寸的屏幕，调整布局。
+  - 响应式：根据不同尺寸的屏幕，调整布局
 
 
 
-### 🎃清除浮动
 
-- 添加空的div，css设为`clear: both`
-- 在父元素上使用`overflow: hidden`或`overflow: auto`，可以把父元素撑开。
-- 使用`:after`伪元素，给父元素加个`:after`，然后这个`:after`里面设置`clear: both`
-- 在IE下，为了触发hasLayout，要加上`zoom: 1`。
 
+
+### 🎃CSS相关问题
+
+- 清除浮动
+  - 添加空的div，css设为`clear: both`
+  - 在父元素上使用`overflow: hidden`或`overflow: auto`，可以把父元素撑开。
+  - 使用`:after`伪元素，给父元素加个`:after`，然后这个`:after`里面设置`clear: both`
+  - 在IE下，为了触发hasLayout，要加上`zoom: 1`。
+- box-sizing: `content-box` & `border-box`。前者为默认值，后者的`width`和`height`是包含border和padding的。
+- absolute：相对上一个设置了position属性的元素进行定位（absolute，relative，fixed）
+- css3新特性
+  - word-wrap，设置`word-wrap: break-word`的话，在单词换行的情况下，可保持单词的完整性。
+  - font-face：可加载服务器端的字体
+  - transition, transform, animation
 
 
 
@@ -139,12 +154,12 @@
 ### 🎃Javascript 单线程、异步请求、异步编程
 
 -   异步机制：js的**执行线程**发送异步请求，这时浏览器会开一条新的HTTP请求线程（不进入主线程、进入**任务队列**）来执行请求。js线程继续执行线程队列中剩下的其他任务。然后在未来的某一时刻事件触发线程监视到之前之前的HTTP请求已完成，就会把完成事件插入到js执行队列的尾部等待js处理。
-- 异步编程的四种办法：
+-   异步编程的四种办法：
   - 回调函数：简单，容易理解和部署。但不利于代码的维护，各个部分高度耦合。
   - 事件监听：有利于实现模块化。但整个程序都要变成事件驱动型，运行流程会变得很不清晰。
   - 发布/订阅（观察者模式）：f1向”信号中心“发布信号，f2订阅”信号中心“的该信号。
   - Promise对象：回调函数变成了链式写法，且有一整套的配套方案，功能强大（then,fail,all,race）
-- setTimeout()将事件插入"任务队列"，必须等到当前代码（执行栈）执行完，主线程才会去执行它指定的回调函数。要是当前代码耗时很长，有可能要等很久，所以并没有办法保证，回调函数一定会在setTimeout()指定的时间执行。
+-   setTimeout()将事件插入"任务队列"，必须等到当前代码（执行栈）执行完，主线程才会去执行它指定的回调函数。要是当前代码耗时很长，有可能要等很久，所以并没有办法保证，回调函数一定会在setTimeout()指定的时间执行。
 
 
 
@@ -1309,7 +1324,7 @@ Proxy代理的情况下，this指向Proxy代理。
 
 
 
-### 🏁\_\_proto\_\_ & prototype
+### 🔨\_\_proto\_\_ & prototype
 
 `__proto__`: 一种属性，每个对象都有这个属性，指向该对象的原型对象
 
@@ -1337,81 +1352,35 @@ Proxy代理的情况下，this指向Proxy代理。
   ```
 
   - 子类的`prototype`指向父类的`实例`。
+
   - 子类的实例的`__proto__`指向父类的`prototype`
+
   - 子类需要手动修正prototype的constructor函数，否则constructor会指向Animal。
 
+  - 通过组合式继承，解决给父类传参的问题
 
+    ```javascript
+    // 父类
+    function Animal(name){
+      this.species = "动物";
+      this.name = name
+    }
 
-### 🏁Built-In Type Methods
+    function Cat(name){
+      Animal.call(this,name)
+    }
 
-Briefly, there is a String (capital S) object wrapper form, typically called a "native," that pairs with the primitive string type; it's this object wrapper that defines the toUpperCase() method on its prototype.
+    // 子类
+    Cat.prototype = new Animal();
+    Cat.prototype.constructor = Cat;
+    var cat1 = new Cat("大毛");
 
+    alert(cat1.species); // 动物
+    alert(cat1.name); // 大毛
+    ```
 
+    ​
 
-### 🏁Truthy & Falsy
-
-The specific list of "falsy" values in JavaScript is as follows:
-
-- "" (empty string)
-- 0, -0, NaN (invalid number)
-- null, undefined
-- false
-
-Any value that's not on this "falsy" list is "truthy."
-
-
-
-### 🏁Hoisting
-
-Wherever a var appears inside a scope, that declaration is taken to belong to the entire scope and accessible everywhere throughout.
-
-Metaphorically, this behavior is called hoisting, when a var declaration is conceptually "moved" to the top of its enclosing scope.
-
-
-
-### 🏁Function Scope and Block Scope
-
-``var`` will be hoisted in block scope, but ``let`` won't
-
-
-
-### 🏁Switch Case
-
-If you omit break from a case, and that case matches or runs, execution will continue with the next case's statements regardless of that case matching. This so called "fall through" is sometimes useful/desired
-```javascript
-switch (a) {
-    case 2:
-    case 10:
-        // some cool stuff
-        break;
-    case 42:
-        // other stuff
-        break;
-    default:
-        // fallback
-}
-```
-if a is either 2 or 10, it will execute the "some cool stuffff" code statements.
-
-
-
-### 🏁Modules
-
-The most common usage of **closure** in JavaScript is the **module** pattern. Modules let you define **private** implementation details (variables, functions) that are hidden from the outside world, as well as a public API that is accessible from the outside.
-
-
-
-### 🏁Prototypes
-
-When you reference a property on an object, if that property doesn't exist, JavaScript will automatically use that object's internal prototype reference to find another object to look for the property on. You could think of this almost as a fallback if the property is missing.
-
-The most common way this feature is used -- and I would argue, abused -- is to try to emulate/fake a "class" mechanism with "inheritance."
-
-
-
-### 🏁NaN
-
-**NaN** value is the only one that would make x !== x be true.
 
 
 
