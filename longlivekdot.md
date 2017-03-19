@@ -144,7 +144,7 @@
 - absolute：相对上一个设置了position属性的元素进行定位（absolute，relative，fixed）
 - css3新特性
   - word-wrap，设置`word-wrap: break-word`的话，在单词换行的情况下，可保持单词的完整性。
-  - font-face：可加载服务器端的字体
+  - font-face：可加载服务器端的字体。使网页可以显示用户本地不存在的字体。至少需要`.woff`和`.eot`两种格式的字体。
   - transition, transform, animation
 
 
@@ -1694,6 +1694,20 @@ window.setTimeout = function (vCallback, nDelay /*, argumentToPass1, argumentToP
   // 虽然f方法在原型o上，但this依旧指向p
   ```
 
+### 🔨`typeof`和`Object.prototype.toString.call()`的对比
+
+- typeof 只能输出原生对象。
+- Object.prototype.toString.call() 能输出内置对象
+
+	```javascript
+	typeof Math  // object
+	Object.prototype.toString.call(Math)  // [Object Math]
+
+	typeof [] // object
+	Object.prototype.toString.call([])  // [Object Array]
+	```
+- 七种基本类型：Number, String, Boolean, Object, Null, Undefined, Symbol
+- Object衍生出来的内置对象：Array, Function, Date, RegExp
   ​
 
 
