@@ -1696,19 +1696,30 @@ window.setTimeout = function (vCallback, nDelay /*, argumentToPass1, argumentToP
 
 ### 🔨`typeof`和`Object.prototype.toString.call()`的对比
 
-- typeof 只能输出原生对象。
-- Object.prototype.toString.call() 能输出内置对象
+- 实例：
 
-	```javascript
-	typeof Math  // object
-	Object.prototype.toString.call(Math)  // [Object Math]
+  ```javascript
+  typeof Math  // object
+  Object.prototype.toString.call(Math)  // [Object Math]
 
-	typeof [] // object
-	Object.prototype.toString.call([])  // [Object Array]
-	```
+  typeof [] // object
+  Object.prototype.toString.call([])  // [Object Array]
+  ```
+
+- Object.prototype.toString.call()的运行原理
+
+  1. 获取this对象的`[[Class]]`属性的值
+  2. return "[Object " + [[Class]] + " ]"
+
+  > [[Class]] 是一个内部属性，原生对象和内置对象都有。
+  >
+  > [[Class]] 属性的值，可以用来判断一个原生对象属于哪种内置类型，这就是为什么这个方法可以获取最真实的类型的原因。
+
 - 七种基本类型：Number, String, Boolean, Object, Null, Undefined, Symbol
+
 - Object衍生出来的内置对象：Array, Function, Date, RegExp
-  ​
+
+- `undefined`和`null`的区别：前者是一个unexpected no-value，后者是一个expected no-value。就是说，本该有一个value，但却没有value的时候，就是undefined。手动控制没有value 的时候，就是null。
 
 
 
