@@ -247,6 +247,20 @@
   ​
 
 
+### 🎃事件绑定的兼容性问题
+
+- 事件在传播过程中的三个阶段：`捕捉阶段`，`目标阶段`，`起泡阶段`。
+- 并不是所有事件事件类型都有起泡阶段，例如，表单提交事件就只能够在当前元素身上响应，它不会身上起泡，传播给上级元素。
+- 冒泡型事件流的具体约定：
+  - IE6.0及其以上：p —> body —> html —> document
+  - Mozilla1.0及其以上：p —> body —> html —> document —> window
+- 事件绑定
+  - `addEventListener()` 和 `removeEventListener()`
+  - addEventListener，3个参数，第一个`type`，第二个`listener`，第三个`useCapture`。`userCapture`为true表示在捕获阶段触发响应。`listener`尽量不要用匿名函数，因为FireFox会把结构相同的匿名函数看成不同的函数。
+  - IE中：`attachEvent()`和`detachEvent()`。
+  - `event = event || window.event`。（后者用于IE中获取事件对象）
+  - IE中没有`stopPropagation()`，使用`window.event.cancelBubble = true `来取消冒泡。
+
 
 
 ### 🎃事件代理
@@ -1717,9 +1731,25 @@ window.setTimeout = function (vCallback, nDelay /*, argumentToPass1, argumentToP
 
 - 七种基本类型：Number, String, Boolean, Object, Null, Undefined, Symbol
 
-- Object衍生出来的内置对象：Array, Function, Date, RegExp
+- Object衍生出来的对象：Array, Function, Date, RegExp
 
 - `undefined`和`null`的区别：前者是一个unexpected no-value，后者是一个expected no-value。就是说，本该有一个value，但却没有value的时候，就是undefined。手动控制没有value 的时候，就是null。
+
+- 原生对象与宿主对象
+
+  - 原生对象是由ECMAScript定义的那些对象，独立于宿主环境。是那些具有内部`[[Class]]`属性的对象。
+  - 宿主对象是在js环境中，一开始便生成的那些对象
+  - built-in object: object specified and supplied by an ECMAScript implementation
+
+  ```
+  Native Objects:
+  Object, Function, Array, String, Boolean, Date, Math, RegExp
+
+  Host Objects:
+  window, document, location, history
+  ```
+
+  ​
 
 
 
