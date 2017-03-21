@@ -52,7 +52,7 @@
 
 - 代理者模式：为对象提供一个代理者，来控制对这个对象的访问。隐藏这个对象的内部细节。
 
-- 门面模式：定义一个高层接口，为子系统的一组接口提供一个一直的界面。
+- 门面模式：定义一个高层接口，为子系统的一组接口提供一个一致的界面。
 
   - 门面模式与代理这模式的区别：
     - 外观模式是代理模式的宏观版本。
@@ -659,7 +659,7 @@ document.getElementById("parent-list").addEventListener("click",function(e) {
 
 - Vue
 
-  - global event bus：$emit和$on时间，和angular 1里面的通信机制很像
+  - global event bus：$emit和$on事件，和angular 1里面的通信机制很像
   - vuex：vue的全局状态管理。以mutations替代reducer，无需switch。且Vue有自动重新渲染的特性，所以vuex里面的数据变化后，没有subscribe的过程。
   - vue-router：vue的路由管理
   - 似乎只能运行在IE9以上的浏览器？
@@ -1313,7 +1313,7 @@ let arr = [...iterable]
 - then方法接受两个回调函数作为参数，第一个resolve时使用，第二个reject时使用，第二个可以省略。
 - catch方法等于then(null,func)
 - Promise.all([p1,p2,p3,...])，全部resolve的话，所有结果组成数组传递给then，其中一个rejected，就跳出了。
-- Promise.reace([p1,p2,p3,...])，p1、p2、p3之中有一个实例率先改变状态，p的状态就跟着改变。那个率先改变的Promise实例的返回值，就传递给p的回调函数。
+- Promise.race([p1,p2,p3,...])，p1、p2、p3之中有一个实例率先改变状态，p的状态就跟着改变。那个率先改变的Promise实例的返回值，就传递给p的回调函数。
 - Promise.resolve()，将现有对象变为Promise对象。且状态为resolved。
 
 
