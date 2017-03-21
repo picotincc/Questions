@@ -500,6 +500,17 @@ document.getElementById("parent-list").addEventListener("click",function(e) {
 
 
 
+### 🎃图片懒加载
+
+- img标签中，使用`data-src`存储图片的真实url，src存放一个占位用的图片。
+- 当图片滚动到可是窗口区域以内时，再开始加载。
+- 可视区域高度：clientHeight
+- 页面卷上去的高度：scrollTop
+- 图片相对于body，距离顶端的距离：offsetTop的总和
+- offsetTop - clientHeight - scrollTop >=0 ? 加载 : 不加载
+
+
+
 ### 🎃按需加载
 
 - `import()`：一种类似`require`的运行时加载。
@@ -768,7 +779,7 @@ Redux在Flux的基础上，加入了 **Reducer** 和 **Middleware** 的概念。
 
 - 结构共享可以节省内存。
 - 提供了数据的Undo/Redo。
-- 函数是编程。
+- 函数式编程。
 
 
 
@@ -832,6 +843,14 @@ Redux在Flux的基础上，加入了 **Reducer** 和 **Middleware** 的概念。
 
 - 热加载原理：
 
+  > 在构建的时候，webpack添加了一个小型HRM运行环境给bundle文件。这个运行环境跑在了你的app中。当构建结束Webpack并没有推出而是保持激活状态，监听资源文件的改动。如果Webpeck检测到资源文件的改动他将重新build这个改动的模块。
+  >
+  > 接下来，将根据预先的配置要么让Webpack向HRM发起通知，要么让HRM自动检测webpack的变化。任何一种方式都是将改动后的模块高速HRM运行环境来调起热更新：
+  >
+  > 首先HRM将检查是否更新的模块能自我接纳，如果不能，他将检查那些`require`过该更新模块的模块如果这些也不能接受，那就将他冒泡到其他层级，继续查找，`require`了这些`require`了变动模块的模块们直到这个更新被接受，如果到了入口点还没有，就说明热更新失败。
+  >
+  > ​
+  >
   > 文件修改会触发 webpack 重新构建，服务器通过向浏览器发送更新消息，浏览器通过 jsonp 拉取更新的模块文件，jsonp 回调触发模块热替换逻辑。
 
 - Webpack中真正对jsx代码进行编译的是`babel-loader`，webpack的存在使得这些js文件都模块化。
@@ -1000,7 +1019,7 @@ class Point {
 
 - `import`：
 
-  - 编译时加载。在编译阶段执行import语句。
+  - **编译时加载**。在编译阶段执行import语句。
   - 按需加载。只import大括号内需要的东西。
   - 具有**提升效果**。
   - 是**Singleton**模式。对同一个模块多次import，只会执行一次。
@@ -1078,14 +1097,16 @@ class Point {
   // {bar:'my-default'}
   ```
 
-  ​
+- AMD依赖前置，CMD依赖延迟。前者用户体验好，后者性能好。
 
 ### 6️⃣Generator
 
 - 状态机的概念，内部封装多个状态。
-- 执行Generator函数会返回一个遍历器对象，遍历器可以依次遍历Generator函数内部的各个状态。
+- 执行Generator函数会返回一个遍历器对象，遍历器可以依次遍历Generator函数内部的各个状态。（指向内部状态的指针对象）
 - Generator可以没有yield语句，这时就变成了一个单纯的暂缓执行函数。
-- Generator作为遍历器生成函数，可以直接复制给`[Symbol.iterator]`
+- Generator作为遍历器生成函数，可以直接复制给`[Symbol.iterator]`。
+- yield语句后面的表达式，只有当调用`next()`方法时才会执行，是一种 **惰性求值** 。
+- `g.return()`可以终结Generator的遍历。如果有`try...finally...`代码块的存在，会等到`finally`部分的代码执行完后再终止。
 
 
 ##### 使用Generator实现协程
