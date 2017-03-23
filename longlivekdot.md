@@ -147,6 +147,13 @@
   - word-wrap，设置`word-wrap: break-word`的话，在单词换行的情况下，可保持单词的完整性。
   - font-face：可加载服务器端的字体。使网页可以显示用户本地不存在的字体。至少需要`.woff`和`.eot`两种格式的字体。
   - transition, transform, animation
+- IE8不支持的CSS属性：
+  - nth-child()
+  - background-size
+  - background-clip
+  - text-outline
+  - text-overflow(只支持部分)
+  - 不支持calc()
 
 
 
