@@ -84,3 +84,41 @@
 
 
 
+
+
+
+### 🎃进程与线程
+
+#### 进程
+
+- A process has a self-contained execution environment. It has a complete, private set of run-time resources suck as text region, data region and stack region.
+- A process is an excution of an application
+- Communication between processes
+  - pipes, message queue
+  - RPC
+  - socket
+  - signal：used to synchronize processes
+  - shared memory
+
+#### 线程
+
+- A process can have many threads, threads are used for concurrent jobs
+- The memory space in the process is shared by the threads
+- Some resources need a mutex to prevent several threads read and write to them at the same time.
+- Some resources can hold no more than n threads, so it use Semaphore to prevent conflict
+- Mutex is a special situation of Semaphore (n=1)
+
+
+
+
+### 🎃多态 Polymorphism
+
+- Program and Code and perform in different ways without modifying the code
+- Ways to implement Polymorphism
+  - Extend
+  - Interface
+  - Override
+
+
+
+

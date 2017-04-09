@@ -52,7 +52,7 @@
 
 - 代理者模式：为对象提供一个代理者，来控制对这个对象的访问。隐藏这个对象的内部细节。
 
-- 门面模式：定义一个高层接口，为子系统的一组接口提供一个一直的界面。
+- 门面模式：定义一个高层接口，为子系统的一组接口提供一个一致的界面。
 
   - 门面模式与代理这模式的区别：
     - 外观模式是代理模式的宏观版本。
@@ -106,9 +106,16 @@
 - DOM存储：sessionStorage、localStorage
 - `<audio>`和`<video>`标签支持新的多媒体内容的操作。
 - Web Worker：在后台线程运行脚本。线程可以执行任务而不干扰用户界面。生成操作系统级别的线程，且无法访问非线程安全的组件和DOM。
+- 新标签：`<section>`,`<figure>`,`<output>`
 
 
 
+
+### 🎃HTML语义化
+
+- 使页面内容结构化，便于浏览器和搜索引擎的解析。
+- 便于阅读维护和理解。
+- 盲人使用读屏器可以更好地阅读。
 
 
 
@@ -120,17 +127,33 @@
 - 字体大小使用em或rem
 - 自适应与响应式：
   - 自适应：自动适应不同尺寸的屏幕，布局一般不变。
-  - 响应式：根据不同尺寸的屏幕，调整布局。
+  - 响应式：根据不同尺寸的屏幕，调整布局
 
 
 
-### 🎃清除浮动
 
-- 添加空的div，css设为`clear: both`
-- 在父元素上使用`overflow: hidden`或`overflow: auto`，可以把父元素撑开。
-- 使用`:after`伪元素，给父元素加个`:after`，然后这个`:after`里面设置`clear: both`
-- 在IE下，为了触发hasLayout，要加上`zoom: 1`。
 
+
+### 🎃CSS相关问题
+
+- 清除浮动
+  - 添加空的div，css设为`clear: both`
+  - 在父元素上使用`overflow: hidden`或`overflow: auto`，可以把父元素撑开。
+  - 使用`:after`伪元素，给父元素加个`:after`，然后这个`:after`里面设置`clear: both`
+  - 在IE下，为了触发hasLayout，要加上`zoom: 1`。
+- box-sizing: `content-box` & `border-box`。前者为默认值，后者的`width`和`height`是包含border和padding的。
+- absolute：相对上一个设置了position属性的元素进行定位（absolute，relative，fixed）
+- css3新特性
+  - word-wrap，设置`word-wrap: break-word`的话，在单词换行的情况下，可保持单词的完整性。
+  - font-face：可加载服务器端的字体。使网页可以显示用户本地不存在的字体。至少需要`.woff`和`.eot`两种格式的字体。
+  - transition, transform, animation
+- IE8不支持的CSS属性：
+  - nth-child()
+  - background-size
+  - background-clip
+  - text-outline
+  - text-overflow(只支持部分)
+  - 不支持calc()
 
 
 
@@ -139,12 +162,12 @@
 ### 🎃Javascript 单线程、异步请求、异步编程
 
 -   异步机制：js的**执行线程**发送异步请求，这时浏览器会开一条新的HTTP请求线程（不进入主线程、进入**任务队列**）来执行请求。js线程继续执行线程队列中剩下的其他任务。然后在未来的某一时刻事件触发线程监视到之前之前的HTTP请求已完成，就会把完成事件插入到js执行队列的尾部等待js处理。
-- 异步编程的四种办法：
+-   异步编程的四种办法：
   - 回调函数：简单，容易理解和部署。但不利于代码的维护，各个部分高度耦合。
   - 事件监听：有利于实现模块化。但整个程序都要变成事件驱动型，运行流程会变得很不清晰。
   - 发布/订阅（观察者模式）：f1向”信号中心“发布信号，f2订阅”信号中心“的该信号。
   - Promise对象：回调函数变成了链式写法，且有一整套的配套方案，功能强大（then,fail,all,race）
-- setTimeout()将事件插入"任务队列"，必须等到当前代码（执行栈）执行完，主线程才会去执行它指定的回调函数。要是当前代码耗时很长，有可能要等很久，所以并没有办法保证，回调函数一定会在setTimeout()指定的时间执行。
+-   setTimeout()将事件插入"任务队列"，必须等到当前代码（执行栈）执行完，主线程才会去执行它指定的回调函数。要是当前代码耗时很长，有可能要等很久，所以并没有办法保证，回调函数一定会在setTimeout()指定的时间执行。
 
 
 
@@ -232,6 +255,20 @@
   ​
 
 
+### 🎃事件绑定的兼容性问题
+
+- 事件在传播过程中的三个阶段：`捕捉阶段`，`目标阶段`，`起泡阶段`。
+- 并不是所有事件事件类型都有起泡阶段，例如，表单提交事件就只能够在当前元素身上响应，它不会身上起泡，传播给上级元素。
+- 冒泡型事件流的具体约定：
+  - IE6.0及其以上：p —> body —> html —> document
+  - Mozilla1.0及其以上：p —> body —> html —> document —> window
+- 事件绑定
+  - `addEventListener()` 和 `removeEventListener()`
+  - addEventListener，3个参数，第一个`type`，第二个`listener`，第三个`useCapture`。`userCapture`为true表示在捕获阶段触发响应。`listener`尽量不要用匿名函数，因为FireFox会把结构相同的匿名函数看成不同的函数。
+  - IE中：`attachEvent()`和`detachEvent()`。
+  - `event = event || window.event`。（后者用于IE中获取事件对象）
+  - IE中没有`stopPropagation()`，使用`window.event.cancelBubble = true `来取消冒泡。
+
 
 
 ### 🎃事件代理
@@ -253,6 +290,12 @@ document.getElementById("parent-list").addEventListener("click",function(e) {
 ```
 
 
+
+### 🎃Target与CurrentTarget
+
+- event.target总是指向触发事件的元素，一直指向目标阶段的那个元素。
+- event.currentTarget指向事件绑定的元素，会在捕获和冒泡阶段触发。
+- 当处于目标阶段时，target与currentTarget是相等的。
 
 
 
@@ -471,6 +514,17 @@ document.getElementById("parent-list").addEventListener("click",function(e) {
 
 
 
+### 🎃图片懒加载
+
+- img标签中，使用`data-src`存储图片的真实url，src存放一个占位用的图片。
+- 当图片滚动到可是窗口区域以内时，再开始加载。
+- 可视区域高度：clientHeight
+- 页面卷上去的高度：scrollTop
+- 图片相对于body，距离顶端的距离：offsetTop的总和
+- offsetTop - clientHeight - scrollTop >=0 ? 加载 : 不加载
+
+
+
 ### 🎃按需加载
 
 - `import()`：一种类似`require`的运行时加载。
@@ -612,7 +666,7 @@ document.getElementById("parent-list").addEventListener("click",function(e) {
 
 - Vue
 
-  - global event bus：$emit和$on时间，和angular 1里面的通信机制很像
+  - global event bus：$emit和$on事件，和angular 1里面的通信机制很像
   - vuex：vue的全局状态管理。以mutations替代reducer，无需switch。且Vue有自动重新渲染的特性，所以vuex里面的数据变化后，没有subscribe的过程。
   - vue-router：vue的路由管理
   - 似乎只能运行在IE9以上的浏览器？
@@ -739,7 +793,7 @@ Redux在Flux的基础上，加入了 **Reducer** 和 **Middleware** 的概念。
 
 - 结构共享可以节省内存。
 - 提供了数据的Undo/Redo。
-- 函数是编程。
+- 函数式编程。
 
 
 
@@ -803,6 +857,14 @@ Redux在Flux的基础上，加入了 **Reducer** 和 **Middleware** 的概念。
 
 - 热加载原理：
 
+  > 在构建的时候，webpack添加了一个小型HRM运行环境给bundle文件。这个运行环境跑在了你的app中。当构建结束Webpack并没有推出而是保持激活状态，监听资源文件的改动。如果Webpeck检测到资源文件的改动他将重新build这个改动的模块。
+  >
+  > 接下来，将根据预先的配置要么让Webpack向HRM发起通知，要么让HRM自动检测webpack的变化。任何一种方式都是将改动后的模块高速HRM运行环境来调起热更新：
+  >
+  > 首先HRM将检查是否更新的模块能自我接纳，如果不能，他将检查那些`require`过该更新模块的模块如果这些也不能接受，那就将他冒泡到其他层级，继续查找，`require`了这些`require`了变动模块的模块们直到这个更新被接受，如果到了入口点还没有，就说明热更新失败。
+  >
+  > ​
+  >
   > 文件修改会触发 webpack 重新构建，服务器通过向浏览器发送更新消息，浏览器通过 jsonp 拉取更新的模块文件，jsonp 回调触发模块热替换逻辑。
 
 - Webpack中真正对jsx代码进行编译的是`babel-loader`，webpack的存在使得这些js文件都模块化。
@@ -971,7 +1033,7 @@ class Point {
 
 - `import`：
 
-  - 编译时加载。在编译阶段执行import语句。
+  - **编译时加载**。在编译阶段执行import语句。
   - 按需加载。只import大括号内需要的东西。
   - 具有**提升效果**。
   - 是**Singleton**模式。对同一个模块多次import，只会执行一次。
@@ -1049,14 +1111,16 @@ class Point {
   // {bar:'my-default'}
   ```
 
-  ​
+- AMD依赖前置，CMD依赖延迟。前者用户体验好，后者性能好。
 
 ### 6️⃣Generator
 
 - 状态机的概念，内部封装多个状态。
-- 执行Generator函数会返回一个遍历器对象，遍历器可以依次遍历Generator函数内部的各个状态。
+- 执行Generator函数会返回一个遍历器对象，遍历器可以依次遍历Generator函数内部的各个状态。（指向内部状态的指针对象）
 - Generator可以没有yield语句，这时就变成了一个单纯的暂缓执行函数。
-- Generator作为遍历器生成函数，可以直接复制给`[Symbol.iterator]`
+- Generator作为遍历器生成函数，可以直接复制给`[Symbol.iterator]`。
+- yield语句后面的表达式，只有当调用`next()`方法时才会执行，是一种 **惰性求值** 。
+- `g.return()`可以终结Generator的遍历。如果有`try...finally...`代码块的存在，会等到`finally`部分的代码执行完后再终止。
 
 
 ##### 使用Generator实现协程
@@ -1256,7 +1320,7 @@ let arr = [...iterable]
 - then方法接受两个回调函数作为参数，第一个resolve时使用，第二个reject时使用，第二个可以省略。
 - catch方法等于then(null,func)
 - Promise.all([p1,p2,p3,...])，全部resolve的话，所有结果组成数组传递给then，其中一个rejected，就跳出了。
-- Promise.reace([p1,p2,p3,...])，p1、p2、p3之中有一个实例率先改变状态，p的状态就跟着改变。那个率先改变的Promise实例的返回值，就传递给p的回调函数。
+- Promise.race([p1,p2,p3,...])，p1、p2、p3之中有一个实例率先改变状态，p的状态就跟着改变。那个率先改变的Promise实例的返回值，就传递给p的回调函数。
 - Promise.resolve()，将现有对象变为Promise对象。且状态为resolved。
 
 
@@ -1309,7 +1373,7 @@ Proxy代理的情况下，this指向Proxy代理。
 
 
 
-### 🏁\_\_proto\_\_ & prototype
+### 🔨\_\_proto\_\_ & prototype
 
 `__proto__`: 一种属性，每个对象都有这个属性，指向该对象的原型对象
 
@@ -1337,81 +1401,35 @@ Proxy代理的情况下，this指向Proxy代理。
   ```
 
   - 子类的`prototype`指向父类的`实例`。
+
   - 子类的实例的`__proto__`指向父类的`prototype`
+
   - 子类需要手动修正prototype的constructor函数，否则constructor会指向Animal。
 
+  - 通过组合式继承，解决给父类传参的问题
 
+    ```javascript
+    // 父类
+    function Animal(name){
+      this.species = "动物";
+      this.name = name
+    }
 
-### 🏁Built-In Type Methods
+    function Cat(name){
+      Animal.call(this,name)
+    }
 
-Briefly, there is a String (capital S) object wrapper form, typically called a "native," that pairs with the primitive string type; it's this object wrapper that defines the toUpperCase() method on its prototype.
+    // 子类
+    Cat.prototype = new Animal();
+    Cat.prototype.constructor = Cat;
+    var cat1 = new Cat("大毛");
 
+    alert(cat1.species); // 动物
+    alert(cat1.name); // 大毛
+    ```
 
+    ​
 
-### 🏁Truthy & Falsy
-
-The specific list of "falsy" values in JavaScript is as follows:
-
-- "" (empty string)
-- 0, -0, NaN (invalid number)
-- null, undefined
-- false
-
-Any value that's not on this "falsy" list is "truthy."
-
-
-
-### 🏁Hoisting
-
-Wherever a var appears inside a scope, that declaration is taken to belong to the entire scope and accessible everywhere throughout.
-
-Metaphorically, this behavior is called hoisting, when a var declaration is conceptually "moved" to the top of its enclosing scope.
-
-
-
-### 🏁Function Scope and Block Scope
-
-``var`` will be hoisted in block scope, but ``let`` won't
-
-
-
-### 🏁Switch Case
-
-If you omit break from a case, and that case matches or runs, execution will continue with the next case's statements regardless of that case matching. This so called "fall through" is sometimes useful/desired
-```javascript
-switch (a) {
-    case 2:
-    case 10:
-        // some cool stuff
-        break;
-    case 42:
-        // other stuff
-        break;
-    default:
-        // fallback
-}
-```
-if a is either 2 or 10, it will execute the "some cool stuffff" code statements.
-
-
-
-### 🏁Modules
-
-The most common usage of **closure** in JavaScript is the **module** pattern. Modules let you define **private** implementation details (variables, functions) that are hidden from the outside world, as well as a public API that is accessible from the outside.
-
-
-
-### 🏁Prototypes
-
-When you reference a property on an object, if that property doesn't exist, JavaScript will automatically use that object's internal prototype reference to find another object to look for the property on. You could think of this almost as a fallback if the property is missing.
-
-The most common way this feature is used -- and I would argue, abused -- is to try to emulate/fake a "class" mechanism with "inheritance."
-
-
-
-### 🏁NaN
-
-**NaN** value is the only one that would make x !== x be true.
 
 
 
@@ -1723,6 +1741,47 @@ window.setTimeout = function (vCallback, nDelay /*, argumentToPass1, argumentToP
   console.log(p.f());
   // 5
   // 虽然f方法在原型o上，但this依旧指向p
+  ```
+
+### 🔨`typeof`和`Object.prototype.toString.call()`的对比
+
+- 实例：
+
+  ```javascript
+  typeof Math  // object
+  Object.prototype.toString.call(Math)  // [Object Math]
+
+  typeof [] // object
+  Object.prototype.toString.call([])  // [Object Array]
+  ```
+
+- Object.prototype.toString.call()的运行原理
+
+  1. 获取this对象的`[[Class]]`属性的值
+  2. return "[Object " + [[Class]] + " ]"
+
+  > [[Class]] 是一个内部属性，原生对象和内置对象都有。
+  >
+  > [[Class]] 属性的值，可以用来判断一个原生对象属于哪种内置类型，这就是为什么这个方法可以获取最真实的类型的原因。
+
+- 七种基本类型：Number, String, Boolean, Object, Null, Undefined, Symbol
+
+- Object衍生出来的对象：Array, Function, Date, RegExp
+
+- `undefined`和`null`的区别：前者是一个unexpected no-value，后者是一个expected no-value。就是说，本该有一个value，但却没有value的时候，就是undefined。手动控制没有value 的时候，就是null。
+
+- 原生对象与宿主对象
+
+  - 原生对象是由ECMAScript定义的那些对象，独立于宿主环境。是那些具有内部`[[Class]]`属性的对象。
+  - 宿主对象是在js环境中，一开始便生成的那些对象
+  - built-in object: object specified and supplied by an ECMAScript implementation
+
+  ```
+  Native Objects:
+  Object, Function, Array, String, Boolean, Date, Math, RegExp
+
+  Host Objects:
+  window, document, location, history
   ```
 
   ​
